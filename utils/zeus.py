@@ -21,3 +21,21 @@ def divide_level(num, all_number):
     num_in_hundred = int(float(num) / float(all_number) * 100)
     level = num_in_hundred / 25 + 1
     return level
+
+
+def is_similar(a_txt, b_txt):
+    '''
+    Detect the similarity between two text
+    For purpose of not mistake for two same track
+    @todo("Fix when Chinese character for instance World's End Girlfriend")
+    @todo("Add the banned word for instance remix")
+    '''
+    a_txt = a_txt.upper()
+    b_txt = b_txt.upper()
+    a_list = a_txt.split()
+    b_list = b_txt.split()
+    count = 0
+    for a_word in a_list:
+        if a_word in b_list:
+            count += 1
+    return True if count >= 1 else False

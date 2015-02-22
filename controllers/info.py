@@ -4,6 +4,7 @@ import md5
 from utils.geventWorker import Worker
 from constants.main import SEARCH_URL, API_HEADERS, API_COOKIE
 from constants.main import get_dfsid_url
+from utils.zeus import is_similar
 
 
 def encrypted_id(id):
@@ -33,7 +34,22 @@ def download_url(track, progress):
                       params=params, cookies=API_COOKIE)
 
     try:
-        song_id = r.json()['result']['songs'][0]['id']
+        # @todo(Improve if two tracks is
+        # Until We Bleed (feat. Lykke Li) (PatrickReza Dubstep Remix) )
+        # Until We Bleed (feat. Lykke Li)
+        # They should choose the version with no dubstep remix
+        songs = r.json()['result']['songs']
+        for song in songs:
+            title = song['name']
+            artist = song['artists'][0]['name']
+            is_artist_similar = is_similar(artist, track.artist)
+            is_title_similar = is_similar(title, track.title)
+            if is_title_similar and is_artist_similar:
+                song_id = song['id']
+                break
+        else:
+            track.mp3_url = None
+            return
     except (TypeError, KeyError):
         track.mp3_url = None
         return
@@ -42,16 +58,12 @@ def download_url(track, progress):
     r = requests.get(dfsid_url)
     try:
         dfsid = r.json()['songs'][0]['hMusic']['dfsId']
-        print(r.json()['songs'][0]['mMusic']['dfsId'])
     except (TypeError, KeyError):
         track.mp3_url = None
         return
-
+    print(progress)
     en_id = encrypted_id(str(dfsid))
     track.mp3_url = en_id + '/' + str(dfsid)
-    print(track.title)
-    print(track.mp3_url)
-    print(progress)
 
 
 def fetch_tracks_urls(chosen_tracks):

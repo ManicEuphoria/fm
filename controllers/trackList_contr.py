@@ -3,6 +3,7 @@ import uuid
 from constants.main import MIN_TRACK_PLAYCOUNT
 from constants.main import LOVED_RATIO
 from models.track import add_tracks
+from models import userTrack
 from utils.rate import Rate
 from utils.zeus import divide_level
 
@@ -41,7 +42,7 @@ class TrackList(object):
 
     def top_to_temp(self):
         '''
-        Sort the tracks, filter tracks,add tracks into database
+        Sort the tracks, filter tracks
         turn tracks into class instance TempTrack
         '''
         top_tracks = sorted(self.tracks_list, key=lambda x: x.weight)
@@ -49,7 +50,6 @@ class TrackList(object):
                                 self.ratio)
                       for track in top_tracks
                       if track.weight >= MIN_TRACK_PLAYCOUNT]
-        # top_tracks = add_tracks(top_tracks)
         top_tracks = self._rate_track(top_tracks)
         return top_tracks
 
@@ -72,7 +72,6 @@ class TrackList(object):
         loved_tracks = [TempTrack(loved_track.track.title,
                                   loved_track.track.artist, self.ratio)
                         for loved_track in self.tracks_list]
-        loved_tracks = add_tracks(loved_tracks)
         for loved_track in loved_tracks:
             loved_track.rate = self.ratio
         return loved_tracks
@@ -98,7 +97,7 @@ def merge(*args):
             rate_tracks_list[track_id].final_rate += rate_value
         else:
             is_star = 1 if temp_track.ratio == LOVED_RATIO else 0
-            track_uuid = str(uuid.uuid4())[0: 6]
+            track_uuid = str(uuid.uuid4())[0: 8]
             final_rate = temp_track.rate * temp_track.ratio
             rate_track = RateTrack(track_uuid, temp_title, temp_artist,
                                    is_star, final_rate)
@@ -106,8 +105,10 @@ def merge(*args):
 
     rate_tracks_list = rate_tracks_list.values()
     rate_tracks_list = sorted(rate_tracks_list, key=lambda x: x.final_rate)
-    track_number = len(rate_tracks_list)
-
     for num, rate_track in enumerate(rate_tracks_list):
-        rate_track.level = divide_level(num, track_number)
+        rate_track.level = divide_level(num, len(rate_tracks_list))
     return rate_tracks_list
+
+
+def add_track_level(username, final_track_list):
+    userTrack.add_tracks(username, final_track_list)

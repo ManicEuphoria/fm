@@ -62,3 +62,4 @@ original_ips
 sftp-config.json
 fabfile.py
 .tags
+.tags_sorted_by_file
