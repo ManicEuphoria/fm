@@ -4,5 +4,6 @@ from views import show
 
 
 urls = [
-    (r'/', show.TestHandler),
+    (r'/test', show.TestHandler),
+    (r'/next', show.NextHandler),
 ]

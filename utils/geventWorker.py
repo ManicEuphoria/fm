@@ -4,13 +4,18 @@ from gevent.queue import Queue
 from gevent import monkey
 monkey.patch_socket()
 
-from utils.log import logger
+# from utils.log import logger
 
 
 class Worker(object):
     def __init__(self, workers_number):
+        '''
+        array_results: The return value of the function may be the [] array
+        And extend all arrays into the array_results
+        '''
         self.workers_number = workers_number
         self.tasks = Queue()
+        self.array_results = []
 
     def put_tasks(self, all_tasks):
         '''
@@ -34,7 +39,9 @@ class Worker(object):
         while not self.tasks.empty():
             task = self.tasks.get()
             progress = self.show_progress()
-            func(task, progress, *args, **kwargs)
+            ret = func(task, progress, *args, **kwargs)
+            if ret:
+                self.array_results.extend(ret)
             # logger.info("The worker %s has got task %s " % (worker_id, task))
 
     def generate_workers(self, func, *args, **kwargs):
@@ -49,6 +56,12 @@ class Worker(object):
     def joinall(self, boss, workers):
         all_spawns = boss + workers
         gevent.joinall(all_spawns)
+
+    def return_results(self):
+        '''
+        Return the array results
+        '''
+        return self.array_results
 
     def show_progress(self):
         '''

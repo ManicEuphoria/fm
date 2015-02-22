@@ -3291,7 +3291,7 @@ class User(_BaseObject, _Chartable):
 
         return seq
 
-    def get_loved_tracks(self, limit=50, cacheable=True):
+    def get_loved_tracks(self, limit=500, cacheable=True, page=1):
         """
         Returns this user's loved track as a sequence of LovedTrack objects in
         reverse order of their timestamp, all the way back to the first track.
@@ -3308,6 +3308,8 @@ class User(_BaseObject, _Chartable):
         params = self._get_params()
         if limit:
             params['limit'] = limit
+
+        params['page'] = page
 
         seq = []
         for track in _collect_nodes(
@@ -3594,7 +3596,7 @@ class User(_BaseObject, _Chartable):
         return seq
 
     def get_top_tracks(
-            self, period=PERIOD_OVERALL, limit=None, cacheable=True):
+            self, period=PERIOD_OVERALL, limit=None, cacheable=True, page=1):
         """Returns the top tracks played by a user.
         * period: The period of time. Possible values:
           o PERIOD_OVERALL
@@ -3608,6 +3610,7 @@ class User(_BaseObject, _Chartable):
         params['period'] = period
         if limit:
             params['limit'] = limit
+            params['page'] = page
 
         return self._get_things(
             "getTopTracks", "track", Track, params, cacheable)
