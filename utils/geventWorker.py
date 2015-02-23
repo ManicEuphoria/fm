@@ -77,3 +77,12 @@ class Worker(object):
         progress_two = "%s" % (progress_percentage * 100)
         progress = [progress_one, progress_two]
         return progress
+
+    def pack(self, all_tasks, func, *args, **kwargs):
+        '''
+        Pack all steps into one function
+        '''
+        boss = self.generate_boss(all_tasks)
+        workers = self.generate_workers(func, *args, **kwargs)
+        self.joinall(boss, workers)
+        return self.return_results()

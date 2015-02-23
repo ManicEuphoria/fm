@@ -57,9 +57,38 @@ def get_own_library(username):
     track_contr.add_track_level(username, final_tracks_list)
 
 
+def get_top_tracks(username):
+    playcount = last_contr.get_playcount(username)
+    all_page_number = playcount / 2000
+    all_track_tasks = xrange(1, all_page_number + 1)
+    all_track_gevent = Worker(20)
+    all_track_boss = all_track_gevent.generate_boss(all_track_tasks)
+    all_track_workers = all_track_gevent.generate_workers(
+        last_contr.get_all_top_tracks, username)
+    all_track_gevent.joinall(all_track_boss, all_track_workers)
+    tracks_list = all_track_gevent.return_results()
+    return tracks_list
+
+
+def get_neighbours_fav(neighbours):
+    neighbours_gevent = Worker(20)
+    neighbours_top_tracks = neighbours_gevent.pack(
+        neighbours, last_contr.get_neighbours_fav)
+    print(len(neighbours_top_tracks))
+    # for neighbours_top_track in neighbours_top_tracks:
+    #     print(str(neighbours_top_track))
+
+
+def get_recommendation(username):
+    # all_top_tracks = get_top_tracks(username)
+    neighbours = last_contr.get_neighbours(username)
+    neighbours_fav_tracks = get_neighbours_fav(neighbours)
+
+
 if __name__ == '__main__':
     start_time = time.time()
     username = "patrickcai"
     last_user = last_contr.get_user(username)
-    get_own_library(username)
+    # get_own_library(username)
+    get_recommendation(username)
     print(time.time() - start_time)

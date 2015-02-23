@@ -3,10 +3,6 @@ from utils.picker import Picker
 from constants.main import STORED_TRACKS_NUMBER
 
 
-def add_track_level(username, final_track_list):
-    userTrack.add_tracks(username, final_track_list)
-
-
 def choose_tracks(username):
     '''
     Choose all user tracks from database

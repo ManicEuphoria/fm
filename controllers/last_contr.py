@@ -17,7 +17,7 @@ def get_top_tracks(task_page, progress, user):
     '''
     Get all top tracks in all history
     '''
-    tracks = user.get_top_tracks(limit=100, page=task_page)
+    tracks = user.get_top_tracks(limit=200, page=task_page)
     print(progress)
     return tracks
 
@@ -50,3 +50,34 @@ def extra_info(track, progress, username):
                          network=network).get_album()
     # content = lib.get_tracks("Dustin O'Halloran")
     print(album)
+
+
+def get_all_top_tracks(task_number, progress, username):
+    user = get_user(username)
+    result = user.get_top_tracks(limit=200, page=task_number)
+    print(progress)
+    return result
+
+
+def get_playcount(username):
+    user = get_user(username)
+    result = user.get_playcount()
+    return int(result)
+
+
+def get_neighbours(username):
+    '''
+    Get user's most similar taste who share with
+    '''
+    user = get_user(username)
+    neighbours = user.get_neighbours(limit=50)
+    return neighbours
+
+
+def get_neighbours_fav(user, progress):
+    '''
+    Get one neighbour user's favourite tracks
+    '''
+    top_tracks = user.get_top_tracks(limit=500)
+    print(progress)
+    return top_tracks

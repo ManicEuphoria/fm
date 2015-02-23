@@ -3400,7 +3400,7 @@ class User(_BaseObject, _Chartable):
 
         return Track(artist, title, self.network, self.name)
 
-    def get_recent_tracks(self, limit=10, cacheable=True,
+    def get_recent_tracks(self, limit=200, cacheable=True,
                           time_from=None, time_to=None, page=3):
         """
         Returns this user's played track as a sequence of PlayedTrack objects
