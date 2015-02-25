@@ -60,8 +60,9 @@ def get_own_library(username):
 def get_top_tracks(username):
     playcount = last_contr.get_playcount(username)
     all_page_number = playcount / 2000
+    # all_page_number = 5
     all_track_tasks = xrange(1, all_page_number + 1)
-    all_track_gevent = Worker(20)
+    all_track_gevent = Worker(30)
     all_track_boss = all_track_gevent.generate_boss(all_track_tasks)
     all_track_workers = all_track_gevent.generate_workers(
         last_contr.get_all_top_tracks, username)
@@ -70,19 +71,37 @@ def get_top_tracks(username):
     return tracks_list
 
 
-def get_neighbours_fav(neighbours):
-    neighbours_gevent = Worker(20)
+def get_neighbours_fav(neighbours, all_top_tracks):
+    '''
+    1. Get neighour favourtie track lists
+    2. Transform the tracks list into the instance of class Tracklist
+        and transform each track into the instance of class Temptrack
+    3. Rate each track
+    4. Filter those tracks which user have already listened
+    '''
+    neighbours_gevent = Worker(30, results_type="add_element")
+    user_pages = []
+    for neighbour in neighbours:
+        for page_number in xrange(1, 3):
+            user_page = [neighbour, page_number]
+            user_pages.append(user_page)
+
     neighbours_top_tracks = neighbours_gevent.pack(
-        neighbours, last_contr.get_neighbours_fav)
-    print(len(neighbours_top_tracks))
-    # for neighbours_top_track in neighbours_top_tracks:
-    #     print(str(neighbours_top_track))
+        user_pages, last_contr.get_neighbours_fav)
+
+    # @todo(Add the ratio)
+    neighbours_tracks_list = trackList_contr.TrackList(
+        neighbours_top_tracks, 40, track_list_type="neighbour")
+    neighbours_tracks_list.neighbours_to_temp()
+    final_tracks = neighbours_tracks_list.filter_listened(all_top_tracks)
+    return final_tracks
 
 
 def get_recommendation(username):
-    # all_top_tracks = get_top_tracks(username)
+    all_top_tracks = get_top_tracks(username)
     neighbours = last_contr.get_neighbours(username)
-    neighbours_fav_tracks = get_neighbours_fav(neighbours)
+    neighbours_fav_tracks = get_neighbours_fav(neighbours,
+                                               all_top_tracks)
 
 
 if __name__ == '__main__':

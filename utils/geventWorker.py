@@ -8,14 +8,19 @@ monkey.patch_socket()
 
 
 class Worker(object):
-    def __init__(self, workers_number):
+    def __init__(self, workers_number, results_type="extend_list"):
         '''
         array_results: The return value of the function may be the [] array
         And extend all arrays into the array_results
+        If the results_type is "extend_list", so each result is a list,
+            and extend them
+        If is "add_element" ,so each result is a element ,and add each element
+            to the list
         '''
         self.workers_number = workers_number
         self.tasks = Queue()
         self.array_results = []
+        self.results_type = results_type
 
     def put_tasks(self, all_tasks):
         '''
@@ -40,8 +45,10 @@ class Worker(object):
             task = self.tasks.get()
             progress = self.show_progress()
             ret = func(task, progress, *args, **kwargs)
-            if ret:
+            if ret and self.results_type == "extend_list":
                 self.array_results.extend(ret)
+            elif ret and self.results_type == "add_element":
+                self.array_results.append(ret)
             # logger.info("The worker %s has got task %s " % (worker_id, task))
 
     def generate_workers(self, func, *args, **kwargs):

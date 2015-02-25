@@ -1,3 +1,5 @@
+import time
+
 from constants.main import API_KEY, API_SECRET
 from utils import pylast
 
@@ -70,14 +72,35 @@ def get_neighbours(username):
     Get user's most similar taste who share with
     '''
     user = get_user(username)
-    neighbours = user.get_neighbours(limit=50)
+    neighbours = user.get_neighbours(limit=70)
     return neighbours
 
 
-def get_neighbours_fav(user, progress):
+def get_neighbours_fav(user_page, progress):
     '''
+    user_page is a list contains [user, page_number]
     Get one neighbour user's favourite tracks
     '''
-    top_tracks = user.get_top_tracks(limit=500)
+    user = user_page[0]
+    page = user_page[1]
+    top_tracks = user.get_top_tracks(limit=200, page=page)
     print(progress)
     return top_tracks
+
+
+def scrobble(username, last_track):
+    '''
+    Scrobble one user, and update playing song
+    '''
+    network = get_network()
+    network.session_key = '1a91ae8be6dcc41774b952cb14246275'
+    info = last_track.split('||')
+    timestamp = int(time.time() - float(info[2]))
+    network.scrobble(artist=info[0], title=info[1], timestamp=timestamp)
+
+
+def update_playing(username, this_track):
+    network = get_network()
+    network.session_key = '1a91ae8be6dcc41774b952cb14246275'
+    info = this_track.split("||")
+    network.update_now_playing(artist=info[0], title=info[1])

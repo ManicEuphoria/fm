@@ -1,11 +1,11 @@
 import uuid
 
-from constants.main import MIN_TRACK_PLAYCOUNT
-from constants.main import LOVED_RATIO
-from models.track import add_tracks
+from constants.main import MIN_TRACK_PLAYCOUNT, NEIGHBOUR_OVERALL_RATE_RULES
+from constants.main import LOVED_RATIO, NEIGHBOUR_RATE_RULES
 from models import userTrack
-from utils.rate import Rate
+from utils.rate import Rate, RateConvert
 from utils.zeus import divide_level
+from utils.log import visitlog
 
 
 class TempTrack(object):
@@ -17,8 +17,8 @@ class TempTrack(object):
         self.rate = None
 
     def __repr__(self):
-        return "Track id %s,track title %s, rate %s, ratio %s" % (
-            self.track_id, self.title, self.rate, self.ratio)
+        return "Track id %s,track title %s, rate %s, ratio %s artist %s" % (
+            self.track_id, self.title, self.rate, self.ratio, self.artist)
 
 
 class RateTrack(object):
@@ -36,9 +36,10 @@ class RateTrack(object):
 
 
 class TrackList(object):
-    def __init__(self, tracks_list, ratio):
+    def __init__(self, tracks_list, ratio, track_list_type=None):
         self.tracks_list = tracks_list
         self.ratio = ratio
+        self.track_list_type = track_list_type
 
     def top_to_temp(self):
         '''
@@ -52,6 +53,51 @@ class TrackList(object):
                       if track.weight >= MIN_TRACK_PLAYCOUNT]
         top_tracks = self._rate_track(top_tracks)
         return top_tracks
+
+    def neighbours_to_temp(self):
+        '''
+        the self.tracks_list type is [[Topitem(...user1), Topitem(...user1)],
+                                      [Topitem(...user2), Topitem(...user2)]]
+        1. Sort each neighours track list and turn tracks into instance of
+            class TempTrack
+        2. Merge one_neighbour_tracks and add rate
+        3. Order the merged_neighbours_fav and re-rate the tracks
+        '''
+        all_users_tracks = []
+        for one_user_tracks in self.tracks_list:
+            one_user_tracks = sorted(one_user_tracks, key=lambda x: x.weight)
+            # @todo(add the function for TempTrack(...))
+            one_user_temp_tracks = [TempTrack(track.item.title,
+                                              track.item.artist, self.ratio)
+                                    for track in one_user_tracks
+                                    if track.weight >= MIN_TRACK_PLAYCOUNT]
+            rate_tracks = RateConvert(one_user_temp_tracks,
+                                      **NEIGHBOUR_RATE_RULES)
+            one_user_rated_tracks = rate_tracks.rate()
+            all_users_tracks.extend(one_user_rated_tracks)
+        neighbours_fav_tracks = self._merge_neighbours_tracks(all_users_tracks)
+        self.tracks_list = neighbours_fav_tracks
+
+    def _merge_neighbours_tracks(self, all_users_tracks):
+        '''
+        Merge one_neighbour_tracks and add rate
+        '''
+        neighbours_fav_tracks = {}
+        for track in all_users_tracks:
+            track_id = str(track.artist) + "||" + str(track.title)
+            if track_id in neighbours_fav_tracks:
+                neighbour_track = neighbours_fav_tracks[track_id]
+                neighbour_track.rate += track.rate
+            else:
+                neighbours_fav_tracks[track_id] = track
+        neighbours_fav_tracks = sorted(neighbours_fav_tracks.values(),
+                                       key=lambda x: x.rate)
+        for track in neighbours_fav_tracks:
+            print(track)
+        rate_tracks = RateConvert(neighbours_fav_tracks,
+                                  **NEIGHBOUR_OVERALL_RATE_RULES)
+        neighbours_fav_tracks = rate_tracks.rate()
+        return neighbours_fav_tracks
 
     def _rate_track(self, top_tracks):
         '''
@@ -75,6 +121,23 @@ class TrackList(object):
         for loved_track in loved_tracks:
             loved_track.rate = self.ratio
         return loved_tracks
+
+    def filter_listened(self, top_tracks):
+        '''
+        Filter those track user have already listened
+        Top_tracks is  a list contains the Topitem
+        '''
+        for track in top_tracks:
+            visitlog.info(str(track.item.title) + "|" + str(track.item.artist))
+        final_tracks = []
+        top_tracks_ids = [str(track.item.title) + "||" + str(track.item.artist)
+                          for track in top_tracks
+                          if track.weight >= MIN_TRACK_PLAYCOUNT]
+        for temp_track in self.tracks_list:
+            track_id = str(temp_track.title) + "||" + str(temp_track.artist)
+            if track_id not in top_tracks_ids:
+                final_tracks.append(temp_track)
+        return final_tracks
 
 
 def merge(*args):

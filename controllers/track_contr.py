@@ -32,10 +32,15 @@ def store_urls(username, chosen_tracks):
     userTrack.set_songs_info(username, chosen_tracks)
 
 
-def get_next_song(username):
+def get_next_song(username, number=1):
     '''
     Get the url and extra info about the next song
+    If there are more than one song ,return the list
+    If there is only one song ,return the track it self
     '''
-    track_uuid = userTrack.get_next_song_id(username)
-    track = userTrack.get_next_track(username, track_uuid)
-    return track
+    tracks = []
+    for i in xrange(number):
+        track_uuid = userTrack.get_next_song_id(username)
+        track = userTrack.get_next_track(username, track_uuid)
+        tracks.append(track)
+    return tracks[0] if number == 1 else tracks

@@ -32,7 +32,7 @@ def download_url(track, progress):
     }
     r = requests.post(SEARCH_URL, headers=API_HEADERS,
                       params=params, cookies=API_COOKIE)
-
+    print(progress)
     try:
         # @todo(Improve if two tracks is
         # Until We Bleed (feat. Lykke Li) (PatrickReza Dubstep Remix) )

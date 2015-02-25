@@ -5,11 +5,21 @@
             <script type="text/javascript" src='static/js/test.js'></script>
         </head>
         <body>
-            <audio id="audio" src='{{track.url}}' preload="auto" controls autoplay></audio>
+            <audio id="audio" preload="auto" controls autoplay>
+                <source id="nowplaying" src="{{track[0].url}}">
+                <source id="nextplay" src="{{track[1].url}}">
+            </audio>
             <div id="info">
-                <div id="artist">{{track.title}}</div>
-                <div id="title">{{track.artist}}</div>
+                <div id="artist">{{track[0].artist}}</div>
+                <div id="title">{{track[0].title}}</div>
             </div>
+            <div id="nextInfo" style="display:none">
+                <div id="nextArtist">{{track[1].artist}}</div>
+                <div id="nextTitle">{{track[1].title}}</div>
+                <div id="nextUrl">{{track[1].url}}</div>
+            </div>
+
+            <button id="nextTrack">Next</botton>
             
         </body>
     </html>

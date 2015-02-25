@@ -18,13 +18,23 @@ MAX_PAST_TRACKS = 50
 
 LEVELS_ORDER = [4, 3, 2, 1]
 
-STORED_TRACKS_NUMBER = 50
+STORED_TRACKS_NUMBER = 200
 
 
 SEARCH_URL = 'http://music.163.com/api/search/get'
 API_HEADERS = {"Referer": "http://music.163.com"}
 API_COOKIE = {"appver": '2.0.2'}
 MP3_FILE_PREFIX = 'http://m1.music.126.net/'
+
+
+NEIGHBOUR_RATE_RULES = {
+    "start_value": 3,
+    "end_value": 7,
+}
+NEIGHBOUR_OVERALL_RATE_RULES = {
+    "start_value": 60,
+    "end_value": 100,
+}
 
 
 def get_dfsid_url(song_id):
