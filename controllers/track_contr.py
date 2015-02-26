@@ -44,3 +44,22 @@ def get_next_song(username, number=1):
         track = userTrack.get_next_track(username, track_uuid)
         tracks.append(track)
     return tracks[0] if number == 1 else tracks
+
+
+def get_user_top_tracks(username):
+    '''
+    Get user's top tracks, every artist's track is limited to
+    a certian number
+    '''
+    tracks_list = userTrack.get_top_level_tracks(username)
+    final_tracks = []
+    artists_frequency = {}
+    for track in tracks_list:
+        if artists_frequency.get(track.artist, 0) <= 6:
+            frequency = artists_frequency.get(track.artist, 0) + 1
+            artists_frequency[track.artist] = frequency
+            final_tracks.append(track)
+        if len(final_tracks) >= 700:
+            break
+    print(len(final_tracks))
+    return final_tracks

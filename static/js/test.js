@@ -13,7 +13,7 @@ $(document).ready(function(){
         var now_title = $("#nextTitle").text();
         var this_track = '&this_track=' + now_artist + "||" + now_title;
         query_url = query_url + this_track;
-        $('#nowplaying')[0]['src'] = now_url
+        $('#nowplaying')[0]['src'] = now_url;
         $('#artist').text(now_artist);
         $("#title").text(now_title);
 
@@ -35,7 +35,7 @@ $(document).ready(function(){
         var now_title = $("#nextTitle").text();
         var query_url = 'next?this_track=' + now_artist + "||" + now_title;
 
-        $('#nowplaying')[0]['src'] = now_url
+        $('#nowplaying')[0]['src'] = now_url;
         $('#artist').text(now_artist);
         $("#title").text(now_title);
         audio.load();

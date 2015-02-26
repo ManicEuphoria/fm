@@ -1240,9 +1240,9 @@ class SessionKeyGenerator(object):
         # if url in self.web_auth_tokens.keys():
         #     token = self.web_auth_tokens[url]
         # else:
-            # That's going to raise a WSError of an unauthorized token when the
-            # request is executed.
-            # token = ""
+        # That's going to raise a WSError of an unauthorized token when the
+        # request is executed.
+        # token = ""
 
         request = _Request(self.network, 'auth.getSession', {'token': token})
 
@@ -2897,10 +2897,11 @@ class Tag(_BaseObject, _Chartable):
 
         return self.name
 
-    def get_similar(self):
+    def get_similar(self, limit=20):
         """Returns the tags similar to this one, ordered by similarity. """
-
-        doc = self._request(self.ws_prefix + '.getSimilar', True)
+        params = self._get_params()
+        params['limit'] = limit
+        doc = self._request(self.ws_prefix + '.getSimilar', True, params)
 
         seq = []
         names = _extract_all(doc, 'name')
@@ -3033,13 +3034,14 @@ class Track(_Opus):
 
         self._request(self.ws_prefix + '.ban')
 
-    def get_similar(self):
+    def get_similar(self, limit=20):
         """
         Returns similar tracks for this track on the network,
         based on listening data.
         """
-
-        doc = self._request(self.ws_prefix + '.getSimilar', True)
+        params = self._get_params()
+        params['limit'] = limit
+        doc = self._request(self.ws_prefix + '.getSimilar', True, params)
 
         seq = []
         for node in doc.getElementsByTagName(self.ws_prefix):

@@ -97,12 +97,47 @@ def get_neighbours_fav(neighbours, all_top_tracks):
     return final_tracks
 
 
+def get_rec_artists_tracks(rec_artists):
+    '''
+    From recommendation artists, we can get the artists' top tracks
+    '''
+    rec_artists_gevent = Worker(30)
+    rec_artists_tracks = rec_artists_gevent.pack(
+        rec_artists, last_contr.get_artist_top_tracks)
+    rec_art_tracks_list = trackList_contr.TrackList(
+        rec_artists_tracks, 40, track_list_type="rec_artists")
+    final_tracks = rec_art_tracks_list.rec_art_to_temp()
+    return final_tracks
+
+
+def get_rec_similar_tracks(user_top_tracks, all_top_tracks):
+    '''
+    Get the track's similar tracks
+    '''
+    similar_tracks = Worker(30)
+    similar_tracks = similar_tracks.pack(
+        user_top_tracks, last_contr.get_similar_tracks)
+    similar_tracks = trackList_contr.TrackList(
+        similar_tracks, 40)
+    final_tracks = similar_tracks.sim_to_temp(all_top_tracks)
+    return final_tracks
+
+
 def get_recommendation(username):
     all_top_tracks = get_top_tracks(username)
-    neighbours = last_contr.get_neighbours(username)
-    neighbours_fav_tracks = get_neighbours_fav(neighbours,
-                                               all_top_tracks)
+    # neighbours = last_contr.get_neighbours(username)
+    # neighbours_fav_tracks = get_neighbours_fav(neighbours,
+    #                                            all_top_tracks)
+    rec_artists = last_contr.get_rec_artists(username)
+    rec_artists_tracks = get_rec_artists_tracks(rec_artists)
 
+    user_top_tracks = track_contr.get_user_top_tracks(username)
+    rec_similar_tracks = get_rec_similar_tracks(user_top_tracks,
+                                                all_top_tracks)
+    rec_all_tracks = rec_artists_tracks + rec_similar_tracks
+    print(len(rec_all_tracks))
+    for track in rec_all_tracks:
+        visitlog.info(track)
 
 if __name__ == '__main__':
     start_time = time.time()

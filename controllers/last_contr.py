@@ -9,9 +9,12 @@ def get_network():
     return network
 
 
-def get_user(username):
+def get_user(username, session_key=None):
     network = get_network()
     user = network.get_user(username)
+    if session_key:
+        network.session_key = session_key
+        user = network.get_authenticated_user()
     return user
 
 
@@ -76,6 +79,24 @@ def get_neighbours(username):
     return neighbours
 
 
+def get_rec_artists(username):
+    '''
+    Get user's recommendation artists from lastfm
+    '''
+    user = get_user(username, session_key="1a91ae8be6dcc41774b952cb14246275")
+    rec_artists = user.get_recommended_artists(limit=100)
+    return rec_artists
+
+
+def get_artist_top_tracks(artist, progress):
+    '''
+    Get artist top tracks
+    '''
+    tracks = artist.get_top_tracks(limit=20)
+    print(progress)
+    return tracks
+
+
 def get_neighbours_fav(user_page, progress):
     '''
     user_page is a list contains [user, page_number]
@@ -102,5 +123,15 @@ def scrobble(username, last_track):
 def update_playing(username, this_track):
     network = get_network()
     network.session_key = '1a91ae8be6dcc41774b952cb14246275'
+    # @todo(Fix the bug when the charater contain the &)
+    # http://fm.chom.me/next?this_track=Mychael%20Danna%20&%
+    # 20Rob%20Simonsen||A%20Story%20of%20Boy%20Meets%20Girl
     info = this_track.split("||")
     network.update_now_playing(artist=info[0], title=info[1])
+
+
+def get_similar_tracks(user_track, progress):
+    network = get_network()
+    start_track = pylast.Track(user_track.artist, user_track.title, network)
+    tracks = start_track.get_similar(limit=20)
+    return tracks

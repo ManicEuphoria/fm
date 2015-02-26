@@ -52,6 +52,14 @@ def choose_all_tracks(username):
     return all_tracks
 
 
+def get_top_level_tracks(username):
+    db_session = get_session()
+    all_top_tracks = db_session.query(UserTrack)\
+        .filter(UserTrack.username == username)\
+        .filter(UserTrack.level == 4).all()
+    return all_top_tracks
+
+
 def set_songs_ids(username, chosen_tracks):
     '''
     Set to-played songs ids into redis

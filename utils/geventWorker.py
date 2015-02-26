@@ -49,6 +49,8 @@ class Worker(object):
                 self.array_results.extend(ret)
             elif ret and self.results_type == "add_element":
                 self.array_results.append(ret)
+            progress = self.show_progress()
+            print(progress)
             # logger.info("The worker %s has got task %s " % (worker_id, task))
 
     def generate_workers(self, func, *args, **kwargs):
