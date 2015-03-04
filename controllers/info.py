@@ -32,7 +32,6 @@ def download_url(track, progress):
     }
     r = requests.post(SEARCH_URL, headers=API_HEADERS,
                       params=params, cookies=API_COOKIE)
-    print(progress)
     try:
         # @todo(Improve if two tracks is
         # Until We Bleed (feat. Lykke Li) (PatrickReza Dubstep Remix) )
@@ -46,6 +45,7 @@ def download_url(track, progress):
             is_title_similar = is_similar(title, track.title)
             if is_title_similar and is_artist_similar:
                 song_id = song['id']
+                track.song_id = song_id
                 break
         else:
             track.mp3_url = None
@@ -58,16 +58,24 @@ def download_url(track, progress):
     r = requests.get(dfsid_url)
     try:
         dfsid = r.json()['songs'][0]['hMusic']['dfsId']
+        album_url = r.json()['songs'][0]['album']['blurPicUrl']
+        album_url += '?param=160y160'
+        album_id = r.json()['songs'][0]['album']['id']
+        artist_id = r.json()["songs"][0]['artists'][0]['id']
+        duration = r.json()['songs'][0]['hMusic']['playTime'] / 1000
     except (TypeError, KeyError):
         track.mp3_url = None
         return
-    print(progress)
     en_id = encrypted_id(str(dfsid))
     track.mp3_url = en_id + '/' + str(dfsid)
+    track.album_url = album_url
+    track.album_id = album_id
+    track.artist_id = artist_id
+    track.duration = duration
 
 
 def fetch_tracks_urls(chosen_tracks):
-    workers_number = 20
+    workers_number = 30
     url_gevent = Worker(workers_number)
     boss = url_gevent.generate_boss(chosen_tracks)
     workers = url_gevent.generate_workers(download_url)

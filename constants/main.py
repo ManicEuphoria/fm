@@ -1,8 +1,8 @@
 import os
 
 
-API_KEY = "2e6e98ec329aa9c86bb8a541fc09bd29"
-API_SECRET = "c86c14938f3344707b0a56a0a1370e69"
+API_KEY = "9196fd3c8cebc35c969bcd08cf69416d"
+API_SECRET = "f0067afc3af73cb86a77bb50c3163784"
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -20,7 +20,7 @@ MIN_ARTIST_PLAYCOUNT = 200
 
 LEVELS_ORDER = [4, 3, 2, 1]
 
-STORED_TRACKS_NUMBER = 200
+STORED_TRACKS_NUMBER = 50
 
 
 SEARCH_URL = 'http://music.163.com/api/search/get'
@@ -37,6 +37,10 @@ NEIGHBOUR_OVERALL_RATE_RULES = {
     "start_value": 60,
     "end_value": 100,
 }
+
+WY_ARTIST_PREFIX = 'http://music.163.com/#/artist?id='
+WY_ALBUM_PREFIX = "http://music.163.com/#/album?id="
+WY_SONG_PREFIX = 'http://music.163.com/#/song?id='
 
 
 def get_dfsid_url(song_id):

@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <title>{{track.title}}-{{track.artist}}</title>
+        <meta class="track-title" content="'{{track.title}}'"/>
+        <meta class="track-artist" content="{{track.artist}}"/>
+        <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+        <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+        <script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="http://www.bootcss.com/p/buttons/css/buttons.css">
+        <link rel="stylesheet" href="/static/css/welcome.css">
+        <script type="text/javascript" src='static/js/test.js'></script>
+        <audio id="audio" preload="auto" controls autoplay>
+            <source id="nowplaying" src="{{track.url}}">
+        </audio>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="right-column">
+                    <h1 id="mizar" class="text-center">
+                    MIZAR
+                    </h1>
+                </div>
+
+                <div class="left-column">
+                    <h1 class='text-center'>你的电台</h1>
+
+                    <div class="play-controls">
+                        <i class='fa fa-pause fa-3x paused play-pause'></i>
+                        <i class='fa fa-play fa-3x play play-pause' style='display:none'></i>
+                        <i class='next-song fa  fa-fast-forward fa-3x'></i>
+                    </div>
+                    
+            <div id='player'>
+                    <div id="loading-content" class="fullwidth">
+                    <span class="loading-bar" style='-webkit-animation-duration: {{track.duration}}s;-webkit-animation-delay: 200ms'></span>
+                    </div>
+                    <div class='track-info'>
+                        <div id="album" ><img id='nowAlbum' src="{{track.album_url}}" alt=""></div>
+                        <div id='info'>
+                            <a class="text-center" id="artist" target="_blank">
+                                {% if len(track.artist) < 26 %}
+                                    {{track.artist}}
+                                {% else %}
+                                    {{track.artist[0: 23]}}...
+                                {% end %}
+                            </a>
+                            <a class="text-center" id="title" target="_blank" href="{{track.song_id}}">
+                                {% if len(track.artist) < 56 %}
+                                    "{{track.title}}"
+                                {% else %}
+                                    {{track.artist[0: 52]}}...
+                                {% end %}
+
+
+                            </a>
+                        </div>
+                    </div>
+                    </div>
+                        {% if track.is_star == "1"%}
+                            <i class='fa fa-heart fa-5x heart'></i>
+                            <i class='fa fa-heart-o fa-5x heart' style="display:none"></i>
+                        {% else %}  
+                            <i class='fa fa-heart-o fa-5x heart'></i>
+                            <i class='fa fa-heart fa-5x heart' style="display:none"></i>
+                        {% end %}
+
+                </div>
+
+            </div>
+        </div>
+    </body>
+</html>

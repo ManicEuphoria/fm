@@ -208,3 +208,10 @@ def merge(*args):
 
 def add_track_level(username, final_track_list):
     userTrack.add_tracks(username, final_track_list)
+
+
+def rec_to_db(username, rec_tracks):
+    '''
+    Merge user's recommendation tracks and put them into database
+    '''
+    userTrack.add_rec_tracks(username, rec_tracks)

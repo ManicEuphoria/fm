@@ -1,0 +1,284 @@
+.left-column{
+    height:100%;
+    width:30%;
+    float:left;
+}
+.left-banner{
+    margin-top:170px;
+}
+
+
+
+.right-column{
+    background-image:url('http://static.pexels.com/wp-content/uploads/2014/05/blue-sky-island-lake-180-824x550.jpg');
+    background-size:cover;
+    height:100%;
+    opacity:0.8;
+    width:70%;
+    float:left;
+    z-index:3;
+
+}
+
+
+#subtitle{
+    margin-top:35px;
+    margin-left:38px;
+}
+
+#mizar{
+    color:white;
+    font-weight:bolder;
+    letter-spacing:10px;
+    font-size:70px;
+    margin-top:125px;
+    opacity:0.8;
+    z-index:99;
+
+}
+
+
+.list-info{
+    font-family:sans-serif;
+    margin-bottom:60px;
+    font-size:25px;
+    list-style:none;
+}
+
+#go{
+    margin-top:220px;
+}
+
+#gobutton{
+    font-size:20px;
+}
+
+.fa-cog{
+    color:rgb(80, 107, 106);
+}
+
+.fa-heart{
+    color:cyan;
+}
+
+.fa-music{
+    color:rgb(144, 200, 112);
+}
+
+.fa-lastfm{
+    color:red;
+}
+
+#remain{
+    font-size:25px;
+    margin-top:135px;
+    color:white;
+    letter-spacing:3px;
+    line-height:50px;
+}
+
+
+#content {
+    width: 100%;
+    /* Full Width */
+    height: 5px;
+    margin-left:-14px;
+}
+
+.expand {
+    width: 100%;
+    height: 15px;
+    background: #2187e7;
+    position: absolute;
+    box-shadow: 0px 0px 10px 1px rgba(0,198,255,0.7);
+    -moz-animation: fullexpand 60s linear;
+    -webkit-animation: fullexpand 60s linear;
+}
+
+/* Full Width Animation Bar */
+@-moz-keyframes fullexpand {
+    0%  { width: 0px;
+}
+
+100% {
+    width: 100%;
+}   
+}
+
+@-webkit-keyframes fullexpand {
+    0% {
+        width: 0px;
+    }
+
+    100% {
+        width: 100%;
+    };
+}
+
+
+
+/*radio part*/
+audio#audio{
+    display:none;
+}
+
+#player{
+    width: 90%;
+    margin-top: 5%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.track-info{
+    height:160px;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    transition: all 0.30s ease-in-out;
+
+    box-shadow: 0 0 30px rgba(21, 45, 52, 1);
+    -webkit-box-shadow: 0 0 30px rgba(21, 45, 52, 1);
+    -moz-box-shadow: 0 0 30px rgba(21, 45, 52, 1);
+    position:relative;
+}
+
+#info{
+    width:57%;
+    height:160px;
+}
+
+#album{
+    cursor:pointer;
+    height:0;
+    float:right;
+}
+
+#artist{
+    display:block;
+    color:black;
+    font-size:25px;
+    text-decoration:none;
+    font-weight:bold;
+    margin-right:10px;
+    height:64px;
+}
+
+#title{
+    display:block;
+    color:orange;    
+    margin-top:15px;
+    font-size:20px;
+    text-decoration:none;
+}
+
+
+/*heart*/
+.heart{
+    margin-top:20%;
+    display:block;
+    font-size:5em;
+    margin-left:40%;
+}
+
+.fa-heart-o {
+    color:gray;
+    cursor:pointer;
+}
+
+.fa-heart-o:hover {
+    color:red;
+    cursor:pointer;
+}
+
+
+.fa-heart{
+    color:red;
+    cursor: pointer;
+}
+
+/*.fa-heart:hover{
+    color:gray;
+    cursor: pointer;
+}
+*/
+
+
+
+.play-controls{
+    width:40%;
+    margin-top:10%;
+    margin-left:auto;
+    margin-right:auto;
+    height:10%;
+}
+
+.paused{
+    color:rgb(173, 115, 59);
+    cursor:pointer;
+    position:relative;
+    float:left;
+}
+
+.play {
+    color:rgb(173, 115, 59);
+    cursor:pointer;
+    position:relative;
+    float:left;
+
+}
+
+.paused:hover{
+    opacity: 0.8;
+}
+
+.play:hover{
+    opacity:0.8;
+}
+
+.next-song{
+    float:right;
+}
+
+.next-song:hover{
+    opacity:0.8;
+}
+
+.next-song:hover{
+    cursor: pointer;
+}
+
+.fullwidth#loading-content{
+    width: 100%;
+    /* Full Width */
+
+
+}
+
+.loading-bar {
+    width: 100%;
+    height: 8px;
+    display:block;
+    background: #2187e7;
+    box-shadow: 0px 0px 10px 1px rgba(0,198,255,0.7);
+    -moz-animation: fullexpand 240s linear;
+    -webkit-animation: fullexpand 240s linear;
+}
+
+/* Full Width Animation Bar */
+@-moz-keyframes fullexpand {
+    0%  { width: 0px;
+}
+
+100% {
+    width: 100%;
+}   
+}
+
+@-webkit-keyframes fullexpand {
+    0% {
+        width: 0px;
+    }
+
+    100% {
+        width: 100%;
+    };
+}

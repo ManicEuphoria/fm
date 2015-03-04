@@ -8,10 +8,22 @@ def choose_tracks(username):
     Choose all user tracks from database
     And pick some tracks
     '''
-    tracks_list = userTrack.choose_all_tracks(username)
-    picker = Picker(tracks_list, username)
-    tracks_list = [picker.next_lib()
+    lib_list = userTrack.choose_all_tracks(username)
+    rec_list = userTrack.choose_rec_tracks(username)
+    picker = Picker(lib_list, rec_list, username)
+    tracks_list = [picker.next_mix()
                    for i in xrange(STORED_TRACKS_NUMBER)]
+    return tracks_list
+
+
+def choose_init_tracks(username):
+    '''
+    Pick for the user initialization
+    '''
+    lib_list = userTrack.choose_all_tracks(username)
+    picker = Picker(lib_list, None, username)
+    tracks_list = [picker.next_lib()
+                   for i in xrange(5)]
     return tracks_list
 
 
@@ -26,8 +38,9 @@ def filter_no_tracks(chosen_tracks):
 
 def store_urls(username, chosen_tracks):
     '''
-    Store the mp3 urls into redis
+    First delete past redis info,the store the mp3 urls into redis
     '''
+    userTrack.del_songs_ids_info(username)
     userTrack.set_songs_ids(username, chosen_tracks)
     userTrack.set_songs_info(username, chosen_tracks)
 
@@ -63,3 +76,10 @@ def get_user_top_tracks(username):
             break
     print(len(final_tracks))
     return final_tracks
+
+
+def is_ready(username):
+    '''
+    Check whether user has track list in the redis
+    '''
+    return userTrack.is_ready(username)

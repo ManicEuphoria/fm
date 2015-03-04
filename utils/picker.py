@@ -2,6 +2,8 @@ import random
 from constants.main import MAX_PAST_ARTISTS, LEVELS_ORDER, MAX_PAST_TRACKS
 from utils import fredis
 
+LIB_RATIO = 75
+
 
 class FixedLengthList(object):
     def __init__(self, length, username, limit_name):
@@ -22,15 +24,16 @@ class FixedLengthList(object):
 
 
 class Picker(object):
-    def __init__(self, tracks_list, username):
-        self.tracks_list = tracks_list
+    def __init__(self, lib_list, rec_list, username):
+        self.lib_list = lib_list
+        self.rec_list = rec_list
         self.past_artists = FixedLengthList(MAX_PAST_ARTISTS, username,
                                             "artists")
         self.past_tracks = FixedLengthList(MAX_PAST_TRACKS, username,
                                            "tracks")
         self.pick_pos = 0
 
-    def _next_pos(self):
+    def _next_level_pos(self):
         '''
         Next position in the levels orders
         '''
@@ -39,22 +42,53 @@ class Picker(object):
         else:
             self.pick_pos += 1
 
+    def next_mix(self):
+        '''
+        Pick one song either from libarary or recommendation
+        Depends on the LIB_RATIO
+        '''
+        lib_range = xrange(LIB_RATIO)
+        random_value = random.choice(xrange(100))
+        if random_value in lib_range:
+            return self.next_lib()
+        else:
+            return self.next_rec()
+
+    def next_rec(self):
+        '''
+        Choose next track from the user's recommendation
+        '''
+        next_tracks = [track for track in self.rec_list]
+        while 1:
+            next_track = random.choice(next_tracks)
+            if not self.past_artists.exist(next_track.artist):
+                break
+        self.past_artists.append(next_track.artist)
+        next_track.type = "rec"
+        return next_track
+
     def next_lib(self):
         '''
         Choose next track from the user's own library
         '''
         level = LEVELS_ORDER[self.pick_pos]
-        self._next_pos()
-        level_tracks = [track for track in self.tracks_list
-                        if track.level == level and
-                        not self.past_artists.exist(track.artist) and
-                        not self.past_tracks.exist(track.track_uuid)]
+        self._next_level_pos()
+        level_tracks = [track for track in self.lib_list
+                        if track.level == level]
+        random_track = random.choice(level_tracks)
+        while 1:
+            random_track = random.choice(level_tracks)
+            if not self.past_artists.exist(random_track.artist) and\
+                    not self.past_tracks.exist(random_track.track_uuid):
+                break
+
         # If in the level which can not satisy both rules,pick one
         # randomly from all tracks
         if level_tracks:
             chosen_track = random.choice(level_tracks)
         else:
-            chosen_track = random.choice(self.tracks_list)
+            chosen_track = random.choice(self.lib_list)
         self.past_tracks.append(chosen_track.track_uuid)
         self.past_artists.append(chosen_track.artist)
+        chosen_track.type = "lib"
         return chosen_track
