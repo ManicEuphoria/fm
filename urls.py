@@ -11,4 +11,5 @@ urls = [
     (r'/unlove', show.UnloveHandler),
     (r'/loading', show.LoadHandler),
     (r'/status', show.StatusHandler),
+    (r'/check', show.CheckHandler),
 ]

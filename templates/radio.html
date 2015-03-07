@@ -3,13 +3,17 @@
         <title>{{track.title}}-{{track.artist}}</title>
         <meta class="track-title" content="'{{track.title}}'"/>
         <meta class="track-artist" content="{{track.artist}}"/>
+        <meta class="track-duration"/ content="{{track.duration}}">
+
         <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
         <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
         <script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="http://www.bootcss.com/p/buttons/css/buttons.css">
         <link rel="stylesheet" href="/static/css/welcome.css">
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.0/TweenMax.min.js"></script>
         <script type="text/javascript" src='static/js/test.js'></script>
+        <link rel="stylesheet" href="http://www.bootcss.com/p/buttons/css/buttons.css">
+
         <audio id="audio" preload="auto" controls autoplay>
             <source id="nowplaying" src="{{track.url}}">
         </audio>
@@ -21,11 +25,30 @@
                     <h1 id="mizar" class="text-center">
                     MIZAR
                     </h1>
+                    <div id="introduction" style="display:none">
+                        <i class="fa fa-lg fa-mail-reply"></i>
+                        <p class="question" >Q: </p>MIZAR是什么?他与其他电台有什么不同?
+                        <br/>
+                        <p class="answer">A: </p>一个非商业性质的音乐电台.相比较豆瓣电台等其他产品,Mizar从你last.fm的上万首历史收听记录中挖掘数据,更准确地知晓你的音乐口味.
+                        <br/>
+                        <br/>
+                        <p class="question">Q: </p>未来的计划?<br/>
+                        <p class="answer">A: </p>有关情绪,让电台更加纯粹更少干扰.
+                        <br/>
+                        <br/>
+                        <div>
+                            <p class="question">Q: </p>为什么叫MIZAR?我其他的产品?<br/>
+                            <div class="text-center read-more">
+                                <a href="http://www.patrickcai.com/me" target="_blank" class="button button-glow button-border button-rounded button-primary text-center">阅读更多</a>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
                 <div class="left-column">
-                    <h1 class='text-center'>你的电台</h1>
-
+                    <i class='radio-set fa fa-cog fa-lg'></i>
+                    <h1 class='text-center '>你的电台</h1>
                     <div class="play-controls">
                         <i class='fa fa-pause fa-3x paused play-pause'></i>
                         <i class='fa fa-play fa-3x play play-pause' style='display:none'></i>
@@ -33,9 +56,7 @@
                     </div>
                     
             <div id='player'>
-                    <div id="loading-content" class="fullwidth">
-                    <span class="loading-bar" style='-webkit-animation-duration: {{track.duration}}s;-webkit-animation-delay: 200ms'></span>
-                    </div>
+                    <div class="loading-bar"></div>
                     <div class='track-info'>
                         <div id="album" ><img id='nowAlbum' src="{{track.album_url}}" alt=""></div>
                         <div id='info'>

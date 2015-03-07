@@ -39,6 +39,13 @@ def get_waiting_user():
     return fredis.r_cli.srandmember(fredis.waiting_user_set)
 
 
+def is_in_waiting_user(username):
+    '''
+    Check the user whether is the waiting list
+    '''
+    return fredis.r_cli.sismember(fredis.waiting_user_set, username)
+
+
 def del_waiting_user(username):
     '''
     Delete user who have not crawled the last.fm
@@ -72,3 +79,12 @@ def get_session_key(username):
     chosen_user = db_session.query(User).filter(User.username == username).\
         first()
     return chosen_user.session_key
+
+
+def get_all_users():
+    '''
+    Get all available users
+    '''
+    session = get_session()
+    all_users = session.query(User).filter(User.is_valid == 1).all()
+    return all_users

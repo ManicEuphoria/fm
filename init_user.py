@@ -1,4 +1,5 @@
 import sys
+import os
 reload(sys)
 sys.setdefaultencoding('utf-8')
 import time
@@ -69,7 +70,7 @@ def get_rec_similar_tracks(user_top_tracks, all_top_tracks):
     '''
     Get the track's similar tracks
     '''
-    similar_tracks = Worker(30)
+    similar_tracks = Worker(20)
     similar_tracks = similar_tracks.pack(
         user_top_tracks, last_contr.get_similar_tracks)
     similar_tracks = trackList_contr.TrackList(
@@ -89,7 +90,7 @@ def get_own_library(username):
     4. Add user track into database
     '''
     all_temp_tracks = _gevent_task(
-        50, ALL_PAGE_NUMBER, last_contr.get_top_tracks, TOP_RATIO)
+        20, ALL_PAGE_NUMBER, last_contr.get_top_tracks, TOP_RATIO)
     recent_temp_tracks = _gevent_task(
         50, RECENT_PAGE_NUMBER, last_contr.get_recent_tracks, RECENT_RATIO)
     loved_temp_tracks = _gevent_task(
@@ -97,7 +98,6 @@ def get_own_library(username):
 
     final_tracks_list = trackList_contr.merge(
         all_temp_tracks, recent_temp_tracks, loved_temp_tracks)
-
     trackList_contr.add_track_level(username, final_tracks_list)
 
 
@@ -125,10 +125,11 @@ if __name__ == '__main__':
         username = user_contr.get_waiting_user()
         if username:
             last_user = last_contr.get_user(username)
-            a = time.time()
             init(username)
             userM.del_waiting_user(username)
-            print(time.time() - a)
         else:
+            a = 0
+            a += 1
+            del a
             print("wait 5")
-            time.sleep(5)
+            time.sleep(20)

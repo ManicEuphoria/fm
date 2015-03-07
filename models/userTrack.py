@@ -41,7 +41,7 @@ class RecTrack(Base):
 
 def add_tracks(username, final_tracks_list):
     session = get_session()
-    for final_track in final_tracks_list:
+    for number, final_track in enumerate(final_tracks_list):
         track_uuid = final_track.track_uuid
         title = final_track.title
         artist = final_track.artist
@@ -51,6 +51,9 @@ def add_tracks(username, final_tracks_list):
                                track_uuid=track_uuid, level=level,
                                is_star=is_star)
         session.add(user_track)
+        if number % 200 == 199:
+            session.commit()
+            session = get_session()
     session.commit()
 
 
@@ -187,3 +190,11 @@ def choose_rec_tracks(username):
     rec_tracks = db_session.query(RecTrack)\
         .filter(RecTrack.username == username).all()
     return rec_tracks
+
+
+def remain_tracks(username):
+    '''
+    returns the number of tracks in the user's to-listened tracks
+    '''
+    to_play_tracks = "toplay:%s:list" % (username)
+    return int(fredis.r_cli.llen(to_play_tracks))

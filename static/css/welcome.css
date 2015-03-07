@@ -3,11 +3,11 @@
     width:30%;
     float:left;
 }
+
+
 .left-banner{
     margin-top:170px;
 }
-
-
 
 .right-column{
     background-image:url('http://static.pexels.com/wp-content/uploads/2014/05/blue-sky-island-lake-180-824x550.jpg');
@@ -53,7 +53,7 @@
     font-size:20px;
 }
 
-.fa-cog{
+.intro.fa-cog{
     color:rgb(80, 107, 106);
 }
 
@@ -170,6 +170,20 @@ audio#audio{
     text-decoration:none;
 }
 
+/*config*/
+.fa-cog.radio-set{
+    float:right;
+    top:2%;
+    right:2%;
+    opacity:0.8;
+    cursor:pointer;
+    position:relative;
+}
+
+.fa-cog:hover{
+    opacity:0.6;
+}
+
 
 /*heart*/
 .heart{
@@ -246,39 +260,52 @@ audio#audio{
     cursor: pointer;
 }
 
-.fullwidth#loading-content{
-    width: 100%;
-    /* Full Width */
-
-
-}
 
 .loading-bar {
-    width: 100%;
-    height: 8px;
+    width: 0;
+    height: 9px;
     display:block;
     background: #2187e7;
     box-shadow: 0px 0px 10px 1px rgba(0,198,255,0.7);
-    -moz-animation: fullexpand 240s linear;
-    -webkit-animation: fullexpand 240s linear;
 }
 
-/* Full Width Animation Bar */
-@-moz-keyframes fullexpand {
-    0%  { width: 0px;
+/*introduction word*/
+#introduction{
+    margin-left:20%;
+    font-size:24px;
+    width:65%;
+    margin-top:5%;
+    font-weight:bolder;
+    color:white;
+    opacity:0.7;
 }
 
-100% {
-    width: 100%;
-}   
+.question{
+    color:red;
+    display:inline;
 }
 
-@-webkit-keyframes fullexpand {
-    0% {
-        width: 0px;
-    }
+.answer{
+    color:yellow;
+    display:inline;
+}
 
-    100% {
-        width: 100%;
-    };
+.read-more{
+    margin-top:15%;
+}
+
+.fa-mail-reply{
+    position:absolute;
+    left:5%;
+    top:5%;
+    cursor:pointer;
+}
+
+/*in the loading page, the loading bar*/
+.waiting-loading{
+    width: 0%;
+    background-color: #2187e7;
+    height: 20px;
+    position: absolute;
+    box-shadow: 0px 0px 10px 1px rgba(0,198,255,0.7);
 }

@@ -23,7 +23,7 @@ def choose_init_tracks(username):
     lib_list = userTrack.choose_all_tracks(username)
     picker = Picker(lib_list, None, username)
     tracks_list = [picker.next_lib()
-                   for i in xrange(5)]
+                   for i in xrange(10)]
     return tracks_list
 
 
@@ -40,7 +40,7 @@ def store_urls(username, chosen_tracks):
     '''
     First delete past redis info,the store the mp3 urls into redis
     '''
-    userTrack.del_songs_ids_info(username)
+    # userTrack.del_songs_ids_info(username)
     userTrack.set_songs_ids(username, chosen_tracks)
     userTrack.set_songs_info(username, chosen_tracks)
 

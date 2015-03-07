@@ -75,6 +75,7 @@ class Picker(object):
         self._next_level_pos()
         level_tracks = [track for track in self.lib_list
                         if track.level == level]
+        random.shuffle(level_tracks)
         random_track = random.choice(level_tracks)
         while 1:
             random_track = random.choice(level_tracks)
@@ -84,11 +85,10 @@ class Picker(object):
 
         # If in the level which can not satisy both rules,pick one
         # randomly from all tracks
-        if level_tracks:
-            chosen_track = random.choice(level_tracks)
-        else:
-            chosen_track = random.choice(self.lib_list)
-        self.past_tracks.append(chosen_track.track_uuid)
-        self.past_artists.append(chosen_track.artist)
-        chosen_track.type = "lib"
-        return chosen_track
+        if not level_tracks:
+            random_track = random.choice(level_tracks)
+
+        self.past_tracks.append(random_track.track_uuid)
+        self.past_artists.append(random_track.artist)
+        random_track.type = "lib"
+        return random_track

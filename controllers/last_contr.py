@@ -118,19 +118,27 @@ def scrobble(username, last_track):
     '''
     Scrobble one user, and update playing song
     '''
-    network = get_network()
-    session_key = userM.get_session_key(username)
-    network.session_key = session_key
-    info = last_track.split('||')
-    timestamp = int(time.time() - float(info[2]))
-    network.scrobble(artist=info[0], title=info[1], timestamp=timestamp)
+    try:
+        network = get_network()
+        session_key = userM.get_session_key(username)
+        network.session_key = session_key
+        info = last_track.split('||')
+        timestamp = int(time.time() - float(info[2]))
+        network.scrobble(artist=info[0], title=info[1][1: -1],
+                         timestamp=timestamp)
+    except:
+        pass
 
 
 def update_playing(username, this_track):
-    network = get_network()
-    network.session_key = userM.get_session_key(username)
-    network.update_now_playing(artist=this_track.artist,
-                               title=this_track.title)
+    # @todo(try except)
+    try:
+        network = get_network()
+        network.session_key = userM.get_session_key(username)
+        network.update_now_playing(artist=this_track.artist,
+                                   title=this_track.title)
+    except:
+        pass
 
 
 def get_similar_tracks(user_track, progress):

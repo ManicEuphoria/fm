@@ -1,17 +1,18 @@
 import time
 import tornado
+import refresh
 
 from tornado import gen
 from views.base import BaseHandler
 from controllers import track_contr
 from controllers import last_contr, user_contr
-from models import userM, backgroundM
+from models import userM, backgroundM, userTrack
 
 
 class MainHandler(BaseHandler):
     def get(self):
         username = self.get_secure_cookie("username")
-        username = "Patrickcai"
+        # username = "Patrickcai"
         # Three kinds of situations
         # 1.user is first time -> welcome 2. user has registered, but
         # the track is not ready -> /loading 3.user can listen to radio
@@ -22,7 +23,7 @@ class MainHandler(BaseHandler):
             last_contr.update_playing(username, track)
             self.render("radio.html", track=track)
         else:
-            self.redirect('/loading')
+            self.render('welcome.html')
 
 
 class LoadHandler(BaseHandler):
@@ -37,13 +38,13 @@ class LoadHandler(BaseHandler):
         if userM.do_exist_user(username):
             userM.update_session(username, session_key)
             if track_contr.is_ready(username):
-                self.set_secure_cookie("username", username, expires_days=90)
+                self.set_secure_cookie("username", username, expires_days=300)
                 # If the user has registered before, and track is ready for him
                 self.redirect('/')
         else:
             user_contr.add_user(username, session_key)
             user_contr.add_waiting_user(username)
-            self.set_secure_cookie("username", username, expires_days=90)
+            self.set_secure_cookie("username", username, expires_days=300)
         self.render('loading.html')
 
 
@@ -57,7 +58,7 @@ class TestHandler(BaseHandler):
 class NextHandler(BaseHandler):
     def get(self):
         username = self.get_secure_cookie("username")
-        username = "Patrickcai"
+        # username = "Patrickcai"
         track = track_contr.get_next_song(username)
         last_contr.update_playing(username, track)
         last_track = self.get_argument("last_track", None)
@@ -81,7 +82,7 @@ class LoveHandler(BaseHandler):
     '''
     def get(self):
         username = self.get_secure_cookie("username")
-        username = "Patrickcai"
+        # username = "Patrickcai"
         loved_track = self.get_argument("track", None)
         if not loved_track:
             self.write({'status': "fail"})
@@ -95,7 +96,7 @@ class UnloveHandler(BaseHandler):
     '''
     def get(self):
         username = self.get_secure_cookie("username")
-        username = "Patrickcai"
+        # username = "Patrickcai"
         unloved_track = self.get_argument("track", None)
         if not unloved_track:
             self.write({'status': "fail"})
@@ -117,3 +118,17 @@ class StatusHandler(BaseHandler):
             self.write({'status': "ok"})
         else:
             self.write({'status': 'fail'})
+
+
+class CheckHandler(BaseHandler):
+    '''
+    Check user's remaing songs and refresh their track
+    '''
+    def get(self):
+        print('start check')
+        username = self.get_secure_cookie('username')
+        if len(userTrack.choose_rec_tracks(username)) == 0:
+            self.write({'status': "Fail"})
+        print('end check')
+        refresh.check_and_refresh(username)
+        self.write({'status': "OK"})
