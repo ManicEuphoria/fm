@@ -75,20 +75,24 @@ def get_top_level_tracks(username):
     return all_top_tracks
 
 
-def set_songs_ids(username, chosen_tracks):
+def set_songs_ids(username, chosen_tracks, radio_type="normal"):
     '''
     Set to-played songs ids into redis
     '''
     for track in chosen_tracks:
-        to_play_tracks = "toplay:%s:list" % (username)
+        if radio_type == "normal":
+            to_play_tracks = "toplay:%s:list" % (username)
+        elif radio_type == "emotion":
+            to_play_tracks = "emotion:toplay:%s:list" % (username)
+        print(track.track_uuid)
         fredis.r_cli.rpush(to_play_tracks, track.track_uuid)
 
 
-def del_songs_ids_info(username):
+def del_songs_ids_info(username, radio_type):
     '''
     Delete toplay List and songs info
     '''
-    track_uuids = get_all_songs_ids(username)
+    track_uuids = get_all_songs_ids(username, radio_type)
     for track_uuid in track_uuids:
         user_track = "%s:trackinfo:%s" % (username, track_uuid)
         fredis.r_cli.delete(user_track)
@@ -112,33 +116,44 @@ def set_songs_info(username, chosen_tracks):
         fredis.r_cli.hset(user_track, "artist", str(track.artist))
         fredis.r_cli.hset(user_track, "title", str(track.title))
         fredis.r_cli.hset(user_track, "url", str(track.mp3_url))
-        fredis.r_cli.hset(user_track, "type", str(track.type))
         fredis.r_cli.hset(user_track, "album_url", str(track.album_url))
         fredis.r_cli.hset(user_track, "album_id", str(track.album_id))
         fredis.r_cli.hset(user_track, "artist_id", str(track.artist_id))
         fredis.r_cli.hset(user_track, "song_id", str(track.song_id))
         fredis.r_cli.hset(user_track, "duration", str(track.duration))
-        if track.type == "lib":
-            fredis.r_cli.hset(user_track, 'is_star', str(track.is_star))
-        else:
-            fredis.r_cli.hset(user_track, 'is_star', 0)
+        try:
+            fredis.r_cli.hset(user_track, "type", str(track.type))
+            if track.type == "lib":
+                fredis.r_cli.hset(user_track, 'is_star', str(track.is_star))
+            else:
+                fredis.r_cli.hset(user_track, 'is_star', 0)
+        except Exception as e:
+            print(e)
 
 
-def get_all_songs_ids(username):
+def get_all_songs_ids(username, radio_type):
     '''
     Get all songs ids in redis
     '''
-    to_play_tracks = "toplay:%s:list" % (username)
+    if radio_type == "normal":
+        to_play_tracks = "toplay:%s:list" % (username)
+    elif radio_type == "emotion":
+        to_play_tracks = "emotion:toplay:%s:list" % (username)
+
     tracks_uuids = [fredis.r_cli.lpop(to_play_tracks)
                     for i in xrange(fredis.r_cli.llen(to_play_tracks))]
+    print(tracks_uuids)
     return tracks_uuids
 
 
-def get_next_song_id(username):
+def get_next_song_id(username, radio_type):
     '''
     Get next songs id
     '''
-    to_play_tracks = "toplay:%s:list" % (username)
+    if radio_type == "normal":
+        to_play_tracks = "toplay:%s:list" % (username)
+    elif radio_type == "emotion":
+        to_play_tracks = "emotion:toplay:%s:list" % (username)
     track_uuid = fredis.r_cli.lpop(to_play_tracks)
     return track_uuid
 

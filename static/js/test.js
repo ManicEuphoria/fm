@@ -1,4 +1,60 @@
 $(document).ready(function(){
+
+    function nextrack(radio_type){
+        $.get('next?radio_type=' + radio_type, function(data, status){
+            url = data['url'];
+            title = data['title'];
+            artist = data['artist'];
+            $('meta.track-artist')[0]['content'] = artist;
+            $('meta.track-title')[0]['content'] = title;
+            if (artist.length > 26){
+                artist = artist.substr(0, 23) + "...";
+            }
+            if (title.length > 56){
+                title = title.substr(0, 52) + "...";
+            }
+
+            $('#nowplaying')[0]['src'] = url;
+            $('#artist').text(artist);
+            $("#title").text(title);
+            $('#nowAlbum')[0]['src'] = data['album_url'];
+            $('#title')[0]['href'] = data['song_id'];
+            if (data['is_star'] == "1"){
+                $('.fa-heart').show();
+                $('.fa-heart-o').hide();
+            }
+            else{
+                $('.fa-heart').hide();
+                $('.fa-heart-o').show();
+            }
+            //change the background
+            $('.right-column').css({'background-image':"url('" + data['background_url'] + "')", 'background-size':'cover'});
+
+            audio.load();
+            audio.play();
+                $('.paused').show();
+                $('.play').hide();
+                $('title').text(title + '-' + artist);
+            // change the loading bar
+            bar_tween.restart();
+            bar_tween = new TweenLite.to(bar, data['duration'], {width:'100%',  ease:Linear.easeNone});
+
+
+
+            
+
+
+        });
+
+    }
+    function play_emotion(){
+        nextrack("emotion");
+        // $('#mizar').show();
+        $('.en-emotion').fadeOut("normal");
+        $('meta.radio-type')[0]['content'] = "emotion";
+    }
+
+
     var audio = $("#audio")[0];
 
     TweenLite.ticker.useRAF(false);
@@ -35,8 +91,9 @@ $(document).ready(function(){
         var last_artist = $('meta.track-artist')[0]['content'];
         var last_title = $('meta.track-title')[0]['content'];
         var track_duration = audio.duration;
+        var radio_type = $('meta.radio-type')[0]['content'];
         last_track = 'last_track=' + encodeURIComponent(last_artist) + "||" + encodeURIComponent(last_title) + '||' + track_duration;
-        var query_url = 'next?' + last_track;
+        var query_url = 'next?' + last_track + '&radio_type=' + radio_type;
 
 
         $.get(query_url, function(data, status){
@@ -88,51 +145,8 @@ $(document).ready(function(){
 
 
     $(".next-song").click(function(){
-        $.get('next', function(data, status){
-            url = data['url'];
-            title = data['title'];
-            artist = data['artist'];
-            $('meta.track-artist')[0]['content'] = artist;
-            $('meta.track-title')[0]['content'] = title;
-            if (artist.length > 26){
-                artist = artist.substr(0, 23) + "...";
-            }
-            if (title.length > 56){
-                title = title.substr(0, 52) + "...";
-            }
-
-            $('#nowplaying')[0]['src'] = url;
-            $('#artist').text(artist);
-            $("#title").text(title);
-            $('#nowAlbum')[0]['src'] = data['album_url'];
-            $('#title')[0]['href'] = data['song_id'];
-            if (data['is_star'] == "1"){
-                $('.fa-heart').show();
-                $('.fa-heart-o').hide();
-            }
-            else{
-                $('.fa-heart').hide();
-                $('.fa-heart-o').show();
-            }
-            //change the background
-            $('.right-column').css({'background-image':"url('" + data['background_url'] + "')", 'background-size':'cover'});
-
-            audio.load();
-            audio.play();
-                $('.paused').show();
-                $('.play').hide();
-                $('title').text(title + '-' + artist);
-            // change the loading bar
-            bar_tween.restart();
-            bar_tween = new TweenLite.to(bar, data['duration'], {width:'100%',  ease:Linear.easeNone});
-
-
-            setTimeout(refresh, 10000);
-
-            
-
-
-        });
+        var radio_type = $('meta.radio-type')[0]['content'];
+        nextrack(radio_type);
     });
 
 // love track
@@ -184,7 +198,128 @@ $('.fa-mail-reply').click(function(){
     $('#mizar').animate({marginTop:'125px'}, 1000);
   $('.right-column').removeAttr('style');
 });
+//choose emotion radio
+$('.random#emotion-choose-icon').click(function(){
+    $('#mizar').hide();
+    $('.more-radio').show();
+    $('.choose-word').show();
+    $('.emotion-choice').show();
+    $('.right-column').css({'opacity':'1', "background-image":"url('https://ununsplash.imgix.net/46/yzS7SdLJRRWKRPmVD0La_creditcard.jpg?fit=crop&fm=jpg&h=600&q=75&w=1050')"});
+});
+
+//back to the normal radio
+$('.random#back-icon').click(function(){
+    nextrack("normal");
+    $('#mizar').fadeIn(2000);
+    $('.chosen-word').hide();
+    $('.display-emotion-chi').hide();
+    $('meta.radio-type')[0]['content'] = "normal";
+    $('#emotion-choose-icon').show();
+    $('#back-icon').hide();
+});
+
+$('.low-emotion').click(function(){
+    $('.choose-word').fadeOut();
+    $('.emotion-choice').fadeOut();
+    $('.emotion-word-display').fadeOut();
+    $('.right-column').css({'transition':'background-color 2s ease-in','background': '#81C7D4', "background-image":"url('http://nipponcolors.com/images/texture.png')"});
+    $('.chosen-word').fadeIn(1500);
+    $('.chosen-low').fadeIn(2500);
+    $('#jing').fadeIn(3000);
+    $('#en-jing').fadeIn(4500);
+    query_url = 'emotion?request=choose&emotion_type=low';
+    $('#emotion-choose-icon').hide();
+    $('#back-icon').show();
+
+    function bk_fade(){
+        $('.right-column').attr('style', "background:white");
+    }
+
+    setTimeout(bk_fade, 4000);
+
+
+    $.get(query_url, function(data, status){
+    });
+    setTimeout(play_emotion, 5000);
 
 });
 
+$('.up-emotion').click(function(){
+    $('.choose-word').fadeOut();
+    $('.emotion-choice').fadeOut();
+    $('.emotion-word-display').fadeOut();
+    $('.right-column').css({'transition':'background-color 2s ease-in','background': '#BEC23F', "background-image":"url('http://nipponcolors.com/images/texture.png')"});
+    $('.chosen-word').fadeIn(1500);
+    $('.chosen-low').fadeIn(2500);
+    $('#dong').fadeIn(3000);
+    $('#en-dong').fadeIn(4500);
+    $('#emotion-choose-icon').hide();
+    $('#back-icon').show();
+    function bk_fade(){
+        $('.right-column').attr('style', "background:white");
+    }
+
+    setTimeout(bk_fade, 4000);
+
+
+    query_url = 'emotion?request=choose&emotion_type=up';
+    $.get(query_url, function(data, status){
+    });
+    setTimeout(play_emotion, 5000);
+});
+
+$('.down-emotion').click(function(){
+    $('.choose-word').fadeOut();
+    $('.emotion-choice').fadeOut();
+    $('.emotion-word-display').fadeOut();
+    $('.right-column').css({'transition':'background-color 2s ease-in','background': '#1B813E', "background-image":"url('http://nipponcolors.com/images/texture.png')"});
+    $('.chosen-word').fadeIn(1500);
+    $('.chosen-low').fadeIn(2500);
+    $('#emotion-choose-icon').hide();
+    $('#back-icon').show();
+
+    function bk_fade(){
+        $('.right-column').attr('style', "background:white");
+    }
+
+    setTimeout(bk_fade, 4000);
+    $('#yi').fadeIn(3000);
+    $('#en-yi').fadeIn(4500);
+    query_url = 'emotion?request=choose&emotion_type=down';
+    $.get(query_url, function(data, status){
+    });
+    setTimeout(play_emotion, 5000);
+});
+$('.high-emotion').click(function(){
+    $('.choose-word').fadeOut();
+    $('.emotion-choice').fadeOut();
+    $('.emotion-word-display').fadeOut();
+    $('.right-column').css({'transition':'background-color 2s ease-in','background': '#D0104C', "background-image":"url('http://nipponcolors.com/images/texture.png')"});
+    $('.chosen-word').fadeIn(1500);
+    $('.chosen-low').fadeIn(2500);
+    $('#nao').fadeIn(3000);
+    $('#en-nao').fadeIn(4500);
+    $('#emotion-choose-icon').hide();
+    $('#back-icon').show();
+
+    function bk_fade(){
+        $('.right-column').attr('style', "background:white");
+    }
+
+    setTimeout(bk_fade, 4000);
+
+
+
+    query_url = 'emotion?request=choose&emotion_type=high';
+    $.get(query_url, function(data, status){
+    });
+    setTimeout(play_emotion, 5000);
+});
+
+
+
+
+
+
+});
 

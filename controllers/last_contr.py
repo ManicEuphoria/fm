@@ -177,3 +177,15 @@ def unloved_track(username, info):
     network.session_key = userM.get_session_key(username)
     track = info.split("||")
     pylast.Track(track[0], track[1][1: -1], network).unlove()
+
+
+def get_top_tags(track):
+    '''
+    Get this track's top tags
+    Track
+    user_track_id  username
+    track_uuid title artist level is_star
+    '''
+    network = get_network()
+    user_track = pylast.Track(track.artist, track.title, network)
+    return user_track.get_top_tags()

@@ -7,10 +7,13 @@ from views.base import BaseHandler
 from controllers import track_contr
 from controllers import last_contr, user_contr
 from models import userM, backgroundM, userTrack
+from constants import redname
+from utils import fredis
 
 
 class MainHandler(BaseHandler):
     def get(self):
+        # self.set_secure_cookie("username", "Patrickcai", expires_days=300)
         username = self.get_secure_cookie("username")
         # username = "Patrickcai"
         # Three kinds of situations
@@ -19,7 +22,7 @@ class MainHandler(BaseHandler):
         if not username:
             self.render('welcome.html')
         elif track_contr.is_ready(username):
-            track = track_contr.get_next_song(username)
+            track = track_contr.get_next_song(username, 'normal')
             last_contr.update_playing(username, track)
             self.render("radio.html", track=track)
         else:
@@ -59,7 +62,8 @@ class NextHandler(BaseHandler):
     def get(self):
         username = self.get_secure_cookie("username")
         # username = "Patrickcai"
-        track = track_contr.get_next_song(username)
+        radio_type = self.get_argument('radio_type', None)
+        track = track_contr.get_next_song(username, radio_type)
         last_contr.update_playing(username, track)
         last_track = self.get_argument("last_track", None)
         if last_track:
@@ -132,3 +136,16 @@ class CheckHandler(BaseHandler):
         print('end check')
         refresh.check_and_refresh(username)
         self.write({'status': "OK"})
+
+
+class EmotionHandler(BaseHandler):
+    '''
+    User choose emotion or check its status
+    '''
+    def get(self):
+        username = self.get_secure_cookie("username")
+        request_type = self.get_argument('request', None)
+        emotion = self.get_argument("emotion_type", None)
+        if request_type == "choose" and emotion:
+            message = username + "||" + emotion
+            fredis.r_cli.publish(redname.EMOTION_REFRESH, message)

@@ -1,5 +1,8 @@
 import random
 from constants.main import MAX_PAST_ARTISTS, LEVELS_ORDER, MAX_PAST_TRACKS
+from constants.main import MAX_PAST_EMOTION_ARTISTS, MAX_PAST_EMOTION_TRACKS
+from constants.main import EMOTION_ORDER
+
 from utils import fredis
 
 LIB_RATIO = 75
@@ -21,6 +24,47 @@ class FixedLengthList(object):
         '''
         items_in_list = fredis.r_cli.lrange(self.key_name, 0, -1)
         return True if item in items_in_list else False
+
+
+class EmotionPicker(object):
+    def __init__(self, username, emotion, emotion_tracks):
+        self.username = username
+        self.emotion = emotion
+        self.emotion_tracks = emotion_tracks
+        self.past_artists = FixedLengthList(MAX_PAST_EMOTION_ARTISTS, username,
+                                            'artists')
+        self.past_tracks = FixedLengthList(MAX_PAST_EMOTION_TRACKS, username,
+                                           'tracks')
+        self.choice_pos = 0
+
+    def next_track(self):
+        while 1:
+            random.shuffle(self.emotion_tracks)
+            chosen_track = random.choice(self.emotion_tracks)
+            if not self.past_artists.exist(chosen_track.artist) and \
+                    not self.past_tracks.exist(chosen_track.title) and \
+                    self.in_choice(chosen_track):
+                break
+        self.past_artists.append(chosen_track.artist)
+        self.past_tracks.append(chosen_track.title)
+        self.next_choice()
+        return chosen_track
+
+    def in_choice(self, chosen_track):
+        lib_rec = EMOTION_ORDER[self.choice_pos]['type']
+        min_value = EMOTION_ORDER[self.choice_pos]['min']
+        max_value = EMOTION_ORDER[self.choice_pos]['max']
+        if lib_rec == chosen_track.track_type and\
+                min_value < chosen_track.emotion_value < max_value:
+            return True
+        else:
+            return False
+
+    def next_choice(self):
+        if self.choice_pos == (len(EMOTION_ORDER) - 1):
+            self.choice_pos = 0
+        else:
+            self.choice_pos += 1
 
 
 class Picker(object):

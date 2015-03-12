@@ -15,13 +15,29 @@ LOVED_RATIO = 20
 
 MAX_PAST_ARTISTS = 15
 MAX_PAST_TRACKS = 50
+MAX_PAST_EMOTION_ARTISTS = 3
+MAX_PAST_EMOTION_TRACKS = 20
+
+EMOTION_ORDER = [
+  {'type': 'lib', "min": 95, "max": 100},
+  {'type': 'lib', "min": 95, "max": 100},
+  {'type': 'lib', "min": 90, "max": 100},
+  {'type': 'rec', "min": 95, "max": 100},
+  {'type': 'lib', "min": 90, "max": 100},
+  {'type': 'lib', "min": 85, "max": 100},
+  {'type': 'rec', "min": 85, "max": 100},
+  {'type': 'lib', "min": 80, "max": 100},
+  {'type': 'rec', "min": 80, "max": 100},
+  {'type': 'lib', "min": 60, "max": 100},
+  {'type': 'rec', "min": 60, "max": 100},
+]
 
 MIN_ARTIST_PLAYCOUNT = 200
 
 LEVELS_ORDER = [4, 3, 2, 4, 3, 2, 1]
 
 STORED_TRACKS_NUMBER = 20
-
+STORED_EMOTION_NUMBER = 11
 
 SEARCH_URL = 'http://music.163.com/api/search/get'
 API_HEADERS = {"Referer": "http://music.163.com"}
@@ -41,6 +57,25 @@ NEIGHBOUR_OVERALL_RATE_RULES = {
 WY_ARTIST_PREFIX = 'http://music.163.com/#/artist?id='
 WY_ALBUM_PREFIX = "http://music.163.com/#/album?id="
 WY_SONG_PREFIX = 'http://music.163.com/#/song?id='
+
+VALID_TAGS = ["ambient", "blues", "classic rock", "country", "dance",
+              "easy listening", "emo", "folk", "gothic", "hip-hop",
+              "minimal", "new wave", "noise", "piano", "post-punk",
+              "post-rock", "psychedelic", "punk", "reggae", "Rnb",
+              "shoegaze", "singer-songwriter", "Ska", "trip-hop",
+              "Synthpop", "beautiful", "chillout", "cool", "melancholy",
+              "Mellow", "sad", "romantic", "saxophone", 'Lo-fi', 'summer',
+              'epic', 'calm', "electronic", "britpop", "jazz",
+              "lush"]
+
+TAGS_VALUE = ['1', '2']
+
+
+# value to tell the track apart
+MIDDLE_VALUE = 50
+LOWEST_VALUE = 20
+
+MIN_DUMMY = 1
 
 
 def get_dfsid_url(song_id):

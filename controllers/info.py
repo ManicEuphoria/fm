@@ -57,7 +57,7 @@ def download_url(track, progress):
     dfsid_url = get_dfsid_url(song_id)
     r = requests.get(dfsid_url)
     try:
-        dfsid = r.json()['songs'][0]['hMusic']['dfsId']
+        dfsid = r.json()['songs'][0]['mMusic']['dfsId']
         album_url = r.json()['songs'][0]['album']['blurPicUrl']
         album_url += '?param=160y160'
         album_id = r.json()['songs'][0]['album']['id']

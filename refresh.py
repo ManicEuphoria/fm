@@ -3,8 +3,10 @@ import time
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-from models import userTrack, userM
+from models import userTrack, userM, tagM
 from controllers import user_contr
+from controllers import track_contr
+
 from controllers.track_contr import choose_tracks, filter_no_tracks
 from controllers.info import fetch_tracks_urls
 # from controllers.last_contr import get_extra_info
@@ -37,6 +39,18 @@ def check_and_refresh(username):
     print("remaing number is %s" % (remain_number))
     if remain_number <= 20:
         refresh(username)
+
+
+def refresh_emotion(username, emotion):
+    '''
+    Refresh user's track in certain emotion
+    '''
+    emotion_tracks = tagM.get_emotion_tracks(username, emotion)
+    chosen_tracks = track_contr.choose_emotion_tracks(username, emotion_tracks,
+                                                      emotion)
+    fetch_tracks_urls(chosen_tracks)
+    chosen_tracks = filter_no_tracks(chosen_tracks)
+    store_urls(username, chosen_tracks, erase='True', radio_type="emotion")
 
 
 if __name__ == '__main__':

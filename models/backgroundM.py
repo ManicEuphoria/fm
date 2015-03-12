@@ -23,4 +23,5 @@ def get_random():
     random_row = random.randrange(0, db_session.query(Background).count())
     background = db_session.query(Background)[random_row]
     background_url = background.background_url
+    print(background_url)
     return background_url
