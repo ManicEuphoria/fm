@@ -13,7 +13,6 @@ from utils import fredis
 
 class MainHandler(BaseHandler):
     def get(self):
-        # self.set_secure_cookie("username", "Patrickcai", expires_days=300)
         username = self.get_secure_cookie("username")
         # username = "Patrickcai"
         # Three kinds of situations

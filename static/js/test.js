@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-    function nextrack(radio_type){
+    function nextrack(radio_type, do_background){
         $.get('next?radio_type=' + radio_type, function(data, status){
             url = data['url'];
             title = data['title'];
@@ -28,7 +28,10 @@ $(document).ready(function(){
                 $('.fa-heart-o').show();
             }
             //change the background
-            $('.right-column').css({'background-image':"url('" + data['background_url'] + "')", 'background-size':'cover'});
+            if (do_background == "True"){
+                $('.right-column').css({'background-image':"url('" + data['background_url'] + "')", 'background-size':'cover'});
+            }
+
 
             audio.load();
             audio.play();
@@ -48,7 +51,7 @@ $(document).ready(function(){
 
     }
     function play_emotion(){
-        nextrack("emotion");
+        nextrack("emotion", "False");
         // $('#mizar').show();
         $('.en-emotion').fadeOut("normal");
         $('meta.radio-type')[0]['content'] = "emotion";
@@ -146,7 +149,7 @@ $(document).ready(function(){
 
     $(".next-song").click(function(){
         var radio_type = $('meta.radio-type')[0]['content'];
-        nextrack(radio_type);
+        nextrack(radio_type, "True");
     });
 
 // love track
@@ -194,6 +197,7 @@ $('.fa-cog').click(function(){
 
 //back to normal
 $('.fa-mail-reply').click(function(){
+
     $('#introduction').hide();
     $('#mizar').animate({marginTop:'125px'}, 1000);
   $('.right-column').removeAttr('style');
@@ -204,12 +208,12 @@ $('.random#emotion-choose-icon').click(function(){
     $('.more-radio').show();
     $('.choose-word').show();
     $('.emotion-choice').show();
-    $('.right-column').css({'opacity':'1', "background-image":"url('https://ununsplash.imgix.net/46/yzS7SdLJRRWKRPmVD0La_creditcard.jpg?fit=crop&fm=jpg&h=600&q=75&w=1050')"});
+    $('.right-column').css({'opacity':'1', 'background':"rgba(67, 157, 168, 0.39)", "background-image":"url('http://nipponcolors.com/images/texture.png')"});
 });
 
 //back to the normal radio
 $('.random#back-icon').click(function(){
-    nextrack("normal");
+    nextrack("normal", "False");
     $('#mizar').fadeIn(2000);
     $('.chosen-word').hide();
     $('.display-emotion-chi').hide();
@@ -233,6 +237,11 @@ $('.low-emotion').click(function(){
 
     function bk_fade(){
         $('.right-column').attr('style', "background:white");
+        function bb_fade(){
+            $('.right-column').attr('style', "background-image:url('https://ununsplash.imgix.net/46/yzS7SdLJRRWKRPmVD0La_creditcard.jpg?fit=crop&fm=jpg&h=600&q=75&w=1050')");
+        }
+        setTimeout(bb_fade, 500);
+
     }
 
     setTimeout(bk_fade, 4000);
@@ -257,6 +266,8 @@ $('.up-emotion').click(function(){
     $('#back-icon').show();
     function bk_fade(){
         $('.right-column').attr('style', "background:white");
+        $('.right-column').attr('style', "background-image:url('https://ununsplash.imgix.net/46/yzS7SdLJRRWKRPmVD0La_creditcard.jpg?fit=crop&fm=jpg&h=600&q=75&w=1050')");
+
     }
 
     setTimeout(bk_fade, 4000);
@@ -280,6 +291,7 @@ $('.down-emotion').click(function(){
 
     function bk_fade(){
         $('.right-column').attr('style', "background:white");
+        $('.right-column').attr('style', "background-image:url('https://ununsplash.imgix.net/46/yzS7SdLJRRWKRPmVD0La_creditcard.jpg?fit=crop&fm=jpg&h=600&q=75&w=1050')");
     }
 
     setTimeout(bk_fade, 4000);
@@ -304,6 +316,8 @@ $('.high-emotion').click(function(){
 
     function bk_fade(){
         $('.right-column').attr('style', "background:white");
+        $('.right-column').attr('style', "background-image:url('https://ununsplash.imgix.net/46/yzS7SdLJRRWKRPmVD0La_creditcard.jpg?fit=crop&fm=jpg&h=600&q=75&w=1050')");
+
     }
 
     setTimeout(bk_fade, 4000);

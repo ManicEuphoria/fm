@@ -15,6 +15,72 @@ TrackEmotion = collections.namedtuple("TrackEmotion", [
     'track_uuid', 'artist', "title", "emotion"])
 
 
+def filter_no_tags(lib_tracks, rec_tracks):
+    '''
+    For those tracks with no tags
+    analysize their artists and estimate their emotion value
+    lib_tracks is array of instance of class TrackEmotion
+    '''
+    total_tracks = lib_tracks + rec_tracks
+
+    def _emo_to_score(emo, value):
+        if emo == "low":
+            return 100 - value
+        elif emo == "down":
+            return 200 - value
+        elif emo == "up":
+            return 200 + value
+        elif emo == "high":
+            return 300 + value
+
+    def _score_to_emo(emo, emo_number):
+        emo_value = emo / emo_number
+        if emo_value > 300:
+            return ('high', (emo_value % 300 - 10))
+        elif emo_value > 200:
+            return ("up", emo_value % 200 - 10)
+        elif emo_value > 100:
+            return ('down', 100 - (emo_value % 100) - 10)
+        elif emo_value > 0:
+            return ("low", 100 - emo_value - 15)
+
+    # key is artist ,value is the tuple (emotion_value, emotion_number)
+    artist_value = {}
+    for track in total_tracks:
+        if track.emotion[0] != "no":
+            if track.artist not in artist_value:
+                emotion_value = _emo_to_score(track.emotion[0],
+                                              track.emotion[1])
+                artist_value[track.artist] = (emotion_value, 1)
+            else:
+                emotion_value = _emo_to_score(track.emotion[0],
+                                              track.emotion[1])
+                emotion_value += artist_value[track.artist][0]
+                emotion_number = artist_value[track.artist][1] + 1
+                artist_value[track.artist] = (emotion_value, emotion_number)
+    # key is artist, value is the tuple (emotion, emotion_value)
+    artist_emotion = {}
+    for artist, emotion in artist_value.iteritems():
+        emotion_result = _score_to_emo(emotion[0], emotion[1])
+        artist_emotion[artist] = emotion_result
+        # test
+        print(artist, emotion_result)
+
+    for track in lib_tracks:
+        if track.emotion[0] == "no":
+            emotion_result = artist_emotion.get(track.artist)
+            if emotion_result:
+                track.emotion[0] = emotion_result[0]
+                track.emotion[1] = emotion_result[1]
+
+    for track in rec_tracks:
+        if track.emotion[0] == "no":
+            emotion_result = artist_emotion.get(track.artist)
+            if emotion_result:
+                track.emotion[0] = emotion_result[0]
+                track.emotion[1] = emotion_result[1]
+
+
 def calculate_tags(user_track, progress):
     '''
     Download music and calculate the tags emotion
@@ -86,7 +152,7 @@ def calculate_emotion(track_tags_list, axis):
     emotion = max(emotion_result, key=emotion_result.get)
     emotion_result = (emotion, emotion_result[emotion])
     if not track_tags_list:
-        emotion_result = ('no', -1)
+        emotion_result = ['no', -1]
     return emotion_result
 
 
