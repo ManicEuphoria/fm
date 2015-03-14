@@ -32,8 +32,8 @@ EMOTION_ORDER = [
   {'type': 'rec', "min": 80, "max": 100},
   {'type': 'rec', "min": -20, "max": 100},
   {'type': 'lib', "min": 80, "max": 100},
-  {'type': 'lib', "min": -20, "max": 100},
-  {'type': 'rec', "min": 80, "max": 100},
+  {'type': 'rec', "min": -20, "max": 100},
+  {'type': 'rec', "min": -20, "max": 100},
 ]
 
 MIN_ARTIST_PLAYCOUNT = 200

@@ -205,15 +205,17 @@ $('.fa-mail-reply').click(function(){
 //choose emotion radio
 $('.random#emotion-choose-icon').click(function(){
     $('#mizar').hide();
-    $('.more-radio').show();
-    $('.choose-word').show();
-    $('.emotion-choice').show();
     $('.right-column').css({'opacity':'1', 'background':"rgba(67, 157, 168, 0.39)", "background-image":"url('http://nipponcolors.com/images/texture.png')"});
+    $('.more-radio').fadeIn(1000);
+    $('.chosen-word').hide();
+    $('.emotion-choice').fadeIn(2000);
+    $('.choose-word').fadeIn(2000);
 });
 
 //back to the normal radio
 $('.random#back-icon').click(function(){
     nextrack("normal", "False");
+    $('.more-radio').hide();
     $('#mizar').fadeIn(2000);
     $('.chosen-word').hide();
     $('.display-emotion-chi').hide();
@@ -221,6 +223,81 @@ $('.random#back-icon').click(function(){
     $('#emotion-choose-icon').show();
     $('#back-icon').hide();
 });
+
+$('.low-emotion').mouseover(function(){
+    $('.down-color').css({'opacity': "0.1"});
+    $('.up-color').css({'opacity': "0.1"});
+    $('.high-color').css({'opacity': "0.1"});
+    $('.down-word').css({'opacity': "0.2"});
+    $('.up-word').css({'opacity': "0.2"});
+    $('.high-word').css({'opacity': "0.2"});
+});
+
+$('.low-emotion').mouseout(function(){
+    $('.down-color').css({'opacity': "0.75"});
+    $('.up-color').css({'opacity': "0.75"});
+    $('.high-color').css({'opacity': "0.75"});
+    $('.down-word').css({'opacity': "1"});
+    $('.up-word').css({'opacity': "1"});
+    $('.high-word').css({'opacity': "1"});
+});
+
+$('.up-emotion').mouseover(function(){
+    $('.down-color').css({'opacity': "0.1"});
+    $('.low-color').css({'opacity': "0.1"});
+    $('.high-color').css({'opacity': "0.1"});
+    $('.down-word').css({'opacity': "0.2"});
+    $('.low-word').css({'opacity': "0.2"});
+    $('.high-word').css({'opacity': "0.2"});
+});
+
+$('.up-emotion').mouseout(function(){
+    $('.down-color').css({'opacity': "0.75"});
+    $('.low-color').css({'opacity': "0.75"});
+    $('.high-color').css({'opacity': "0.75"});
+    $('.down-word').css({'opacity': "1"});
+    $('.low-word').css({'opacity': "1"});
+    $('.high-word').css({'opacity': "1"});
+});
+
+
+$('.high-emotion').mouseover(function(){
+    $('.down-color').css({'opacity': "0.1"});
+    $('.up-color').css({'opacity': "0.1"});
+    $('.low-color').css({'opacity': "0.1"});
+    $('.down-word').css({'opacity': "0.2"});
+    $('.up-word').css({'opacity': "0.2"});
+    $('.low-word').css({'opacity': "0.2"});
+});
+
+$('.high-emotion').mouseout(function(){
+    $('.down-color').css({'opacity': "0.75"});
+    $('.up-color').css({'opacity': "0.75"});
+    $('.low-color').css({'opacity': "0.75"});
+    $('.down-word').css({'opacity': "1"});
+    $('.up-word').css({'opacity': "1"});
+    $('.low-word').css({'opacity': "1"});
+});
+
+$('.down-emotion').mouseover(function(){
+    $('.low-color').css({'opacity': "0.1"});
+    $('.up-color').css({'opacity': "0.1"});
+    $('.high-color').css({'opacity': "0.1"});
+    $('.low-word').css({'opacity': "0.2"});
+    $('.up-word').css({'opacity': "0.2"});
+    $('.high-word').css({'opacity': "0.2"});
+});
+
+$('.down-emotion').mouseout(function(){
+    $('.low-color').css({'opacity': "0.75"});
+    $('.up-color').css({'opacity': "0.75"});
+    $('.high-color').css({'opacity': "0.75"});
+    $('.low-word').css({'opacity': "1"});
+    $('.up-word').css({'opacity': "1"});
+    $('.high-word').css({'opacity': "1"});
+});
+
+
 
 $('.low-emotion').click(function(){
     $('.choose-word').fadeOut();

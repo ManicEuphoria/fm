@@ -36,11 +36,11 @@ def filter_no_tags(lib_tracks, rec_tracks):
     def _score_to_emo(emo, emo_number):
         emo_value = emo / emo_number
         if emo_value > 300:
-            return ('high', (emo_value % 300 - 10))
+            return ('high', (emo_value % 300))
         elif emo_value > 200:
-            return ("up", emo_value % 200 - 10)
+            return ("up", emo_value % 200)
         elif emo_value > 100:
-            return ('down', 100 - (emo_value % 100) - 10)
+            return ('down', 100 - (emo_value % 100))
         elif emo_value > 0:
             return ("low", 100 - emo_value - 15)
 

@@ -17,7 +17,7 @@
     width:70%;
     float:left;
     z-index:3;
-    transition:background-color 1s ease-in;
+    /*transition:background-color 1s ease-in;*/
 
 
 }
@@ -382,9 +382,9 @@ audio#audio{
 
 .emotion-choice{
     width:80%;
-    height:60%;
-    margin-top:10%;
-    margin-left:25%;
+    height:24%;
+    margin-top:0.2%;
+    margin-left:24%;
     margin-right:15%;
     color:white;
     font-size:25px;
@@ -393,15 +393,17 @@ audio#audio{
 .emotion-box{
     display:inline-block;
     width:10%;
-    margin-right:36%;
+    margin-right:7%;
     margin-bottom:24%;
 }
 
 .block-color{
     display: block;
     width: 127%;
-    height: 13px;
+    height: 21px;
     margin-bottom: 27%;
+    opacity:0.75;
+    transition: opacity 1s;
 }
 
 .high-color{
@@ -439,6 +441,8 @@ audio#audio{
 
 .choose-word{
     color:white;
+    transition:opacity 0.7s;
+    font-size:75px;
 }
 
 .chosen-low{
@@ -460,4 +464,5 @@ audio#audio{
 .emotion-word{
     cursor:pointer;
     margin-left:25%;
+    transition: opacity 0.7s;
 }

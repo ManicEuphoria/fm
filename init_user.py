@@ -128,8 +128,5 @@ if __name__ == '__main__':
             init(username)
             userM.del_waiting_user(username)
         else:
-            a = 0
-            a += 1
-            del a
             print("wait 5")
             time.sleep(20)
