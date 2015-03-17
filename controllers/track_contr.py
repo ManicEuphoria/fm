@@ -3,16 +3,27 @@ from utils.picker import Picker, EmotionPicker
 from constants.main import STORED_TRACKS_NUMBER, STORED_EMOTION_NUMBER
 
 
-def choose_tracks(username):
+def choose_init_tracks(username):
+    '''
+    Pick for the user initialization
+    '''
+    lib_list = userTrack.choose_all_tracks(username)
+    picker = Picker(lib_list, None, username)
+    tracks_list = [picker.next_lib()
+                   for i in xrange(10)]
+    return tracks_list
+
+
+def choose_tracks(username, lib_ratio, emotion_range):
     '''
     Choose all user tracks from database
     And pick some tracks
     '''
     lib_list = userTrack.choose_all_tracks(username)
     rec_list = userTrack.choose_rec_tracks(username)
-    picker = Picker(lib_list, rec_list, username)
-    tracks_list = [picker.next_mix()
-                   for i in xrange(STORED_TRACKS_NUMBER)]
+    picker = Picker(lib_list, rec_list, username, emotion_range)
+    tracks_list = [picker.next_mix(track_number, lib_ratio)
+                   for track_number in xrange(STORED_TRACKS_NUMBER)]
     return tracks_list
 
 
@@ -23,17 +34,6 @@ def choose_emotion_tracks(username, emotion_tracks, emotion):
     picker = EmotionPicker(username, emotion, emotion_tracks)
     tracks_list = [picker.next_track()
                    for i in xrange(STORED_EMOTION_NUMBER)]
-    return tracks_list
-
-
-def choose_init_tracks(username):
-    '''
-    Pick for the user initialization
-    '''
-    lib_list = userTrack.choose_all_tracks(username)
-    picker = Picker(lib_list, None, username)
-    tracks_list = [picker.next_lib()
-                   for i in xrange(10)]
     return tracks_list
 
 

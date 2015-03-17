@@ -1,4 +1,5 @@
 import os
+import base64
 
 from constants.main import BASE_DIR
 

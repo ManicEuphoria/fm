@@ -1,3 +1,6 @@
+#! /usr/bin/env python
+# -- encoding:utf - 8 --
+
 import time
 import tornado
 import refresh
@@ -13,8 +16,9 @@ from utils import fredis
 
 class MainHandler(BaseHandler):
     def get(self):
+        # self.write("Sorry 重构代码中, 估计一周内重构完!")
         username = self.get_secure_cookie("username")
-        # username = "Patrickcai"
+        username = "Patrickcai"
         # Three kinds of situations
         # 1.user is first time -> welcome 2. user has registered, but
         # the track is not ready -> /loading 3.user can listen to radio

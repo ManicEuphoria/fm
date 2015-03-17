@@ -1,4 +1,5 @@
 import random
+from constants import main
 from constants.main import MAX_PAST_ARTISTS, LEVELS_ORDER, MAX_PAST_TRACKS
 from constants.main import MAX_PAST_EMOTION_ARTISTS, MAX_PAST_EMOTION_TRACKS
 from constants.main import EMOTION_ORDER
@@ -68,13 +69,14 @@ class EmotionPicker(object):
 
 
 class Picker(object):
-    def __init__(self, lib_list, rec_list, username):
+    def __init__(self, lib_list, rec_list, username, emotion_range):
         self.lib_list = lib_list
         self.rec_list = rec_list
         self.past_artists = FixedLengthList(MAX_PAST_ARTISTS, username,
                                             "artists")
         self.past_tracks = FixedLengthList(MAX_PAST_TRACKS, username,
                                            "tracks")
+        self.emotion_range = emotion_range
         self.pick_pos = 0
 
     def _next_level_pos(self):
@@ -86,23 +88,27 @@ class Picker(object):
         else:
             self.pick_pos += 1
 
-    def next_mix(self):
+    def next_mix(self, track_number, lib_ratio):
         '''
         Pick one song either from libarary or recommendation
         Depends on the LIB_RATIO
         '''
-        lib_range = xrange(LIB_RATIO)
-        random_value = random.choice(xrange(100))
-        if random_value in lib_range:
+        is_lib = main.IS_LIB[lib_ratio][track_number]
+        if is_lib:
             return self.next_lib()
         else:
             return self.next_rec()
 
-    def next_rec(self):
+    def next_rec(self, track_number):
         '''
         Choose next track from the user's recommendation
         '''
-        next_tracks = [track for track in self.rec_list]
+        emo_range = main.emotion_range_add(self.emotion_ratio,
+                                           track_number)
+        next_tracks = [emotion_track for emotion_track in self.rec_list
+                       if emo_range[0] <= emotion_track.emotion_value <=
+                       emo_range[1]]
+
         while 1:
             next_track = random.choice(next_tracks)
             if not self.past_artists.exist(next_track.artist):
@@ -111,26 +117,27 @@ class Picker(object):
         next_track.type = "rec"
         return next_track
 
-    def next_lib(self):
+    def next_lib(self, track_number):
         '''
         Choose next track from the user's own library
         '''
-        level = LEVELS_ORDER[self.pick_pos]
-        self._next_level_pos()
-        level_tracks = [track for track in self.lib_list
-                        if track.level == level]
-        random.shuffle(level_tracks)
-        random_track = random.choice(level_tracks)
+        emo_range = main.emotion_range_add(self.emotion_ratio,
+                                           track_number)
+        emotion_tracks = [emotion_track for emotion_track in self.lib_list
+                          if emo_range[0] <= emotion_track.emotion_value <=
+                          emo_range[1]]
+        random.shuffle(emotion_tracks)
+        random_track = random.choice(emotion_tracks)
         while 1:
-            random_track = random.choice(level_tracks)
+            random_track = random.choice(emotion_tracks)
             if not self.past_artists.exist(random_track.artist) and\
                     not self.past_tracks.exist(random_track.track_uuid):
                 break
 
         # If in the level which can not satisy both rules,pick one
         # randomly from all tracks
-        if not level_tracks:
-            random_track = random.choice(level_tracks)
+        if not emotion_tracks:
+            random_track = random.choice(emotion_tracks)
 
         self.past_tracks.append(random_track.track_uuid)
         self.past_artists.append(random_track.artist)

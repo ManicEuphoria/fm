@@ -5,7 +5,7 @@ from constants.main import MP3_FILE_PREFIX, WY_ARTIST_PREFIX
 from constants.main import WY_ALBUM_PREFIX, WY_SONG_PREFIX
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from utils import fredis
+from utils import fredis, zeus
 from fbase import get_session
 
 Base = declarative_base()
@@ -15,13 +15,19 @@ NextTrack = collections.namedtuple("NextTrack", [
     'album_id', "artist_id", "song_id", 'duration'])
 
 
+class TrackInfo(Base):
+    __tablename__ = "trackInfo"
+    track_info_id = Column(Integer, primary_key=True, autoincrement=True)
+    track_uuid = Column(String(length=100))
+    title = Column(String(length=400))
+    artist = Column(String(length=200))
+
+
 class UserTrack(Base):
     __tablename__ = "userTrack"
     user_track_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(length=100))
     track_uuid = Column(String(length=100))
-    title = Column(String(length=400))
-    artist = Column(String(length=200))
     level = Column(Integer)
     is_star = Column(Integer)
 
@@ -35,26 +41,66 @@ class RecTrack(Base):
     user_track_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(length=100))
     track_uuid = Column(String(length=100))
-    title = Column(String(length=400))
-    artist = Column(String(length=200))
+
+
+def add_tracks_info(final_tracks_list):
+    '''
+    Add tracks basic info into TrackInfo
+    '''
+    db_session = get_session()
+    for final_track in final_tracks_list:
+        added_track = db_session.query(TrackInfo)\
+            .filter(TrackInfo.artist == final_track.artist)\
+            .filter(TrackInfo.title == final_track.title).first()
+        if added_track:
+            final_track.track_uuid = added_track.track_uuid
+        else:
+            track = TrackInfo(track_uuid=final_track.track_uuid,
+                              artist=final_track.artist,
+                              title=final_track.title)
+            db_session.add(track)
+    db_session.commit()
+
+
+def add_rec_tracks(username, rec_tracks):
+    '''
+    Add the recommendation tracks into database
+    '''
+    add_tracks_info(rec_tracks)
+    db_session = get_session()
+    for rec_track in rec_tracks:
+        rec_track = RecTrack(username=username,
+                             track_uuid=rec_track.track_uuid)
+        db_session.add(rec_track)
+    db_session.commit()
 
 
 def add_tracks(username, final_tracks_list):
+    '''
+    Add user tracks info into UserTrack
+    '''
+    add_tracks_info(final_tracks_list)
     session = get_session()
-    for number, final_track in enumerate(final_tracks_list):
+    for final_track in final_tracks_list:
         track_uuid = final_track.track_uuid
-        title = final_track.title
-        artist = final_track.artist
         level = final_track.level
         is_star = final_track.is_star
-        user_track = UserTrack(username=username, title=title, artist=artist,
+        user_track = UserTrack(username=username,
                                track_uuid=track_uuid, level=level,
                                is_star=is_star)
         session.add(user_track)
-        if number % 200 == 199:
-            session.commit()
-            session = get_session()
     session.commit()
+
+
+def choose_tracks_info(all_tracks):
+    '''
+    Choose all the tracks info like mp3 url
+    '''
+    db_session = get_session()
+    tracks_uuids = [track.track_uuid for track in all_tracks]
+    tracks_info = db_session.query(TrackInfo)\
+        .filter(TrackInfo.track_uuid.in_(tracks_uuids)).all()
+    return tracks_info
 
 
 def choose_all_tracks(username):
@@ -65,6 +111,16 @@ def choose_all_tracks(username):
     all_tracks = db_session.query(UserTrack)\
         .filter(UserTrack.username == username).all()
     return all_tracks
+
+
+def choose_rec_tracks(username):
+    '''
+    Choose all recommendation tracsk from user
+    '''
+    db_session = get_session()
+    rec_tracks = db_session.query(RecTrack)\
+        .filter(RecTrack.username == username).all()
+    return rec_tracks
 
 
 def get_top_level_tracks(username):
@@ -84,7 +140,6 @@ def set_songs_ids(username, chosen_tracks, radio_type="normal"):
             to_play_tracks = "toplay:%s:list" % (username)
         elif radio_type == "emotion":
             to_play_tracks = "emotion:toplay:%s:list" % (username)
-        print(track.track_uuid)
         fredis.r_cli.rpush(to_play_tracks, track.track_uuid)
 
 
@@ -181,30 +236,6 @@ def get_next_track(username, track_uuid):
                       album_id, artist_id, song_id, duration)
     fredis.r_cli.delete(user_track)
     return track
-
-
-def add_rec_tracks(username, rec_tracks):
-    '''
-    Add the recommendation tracks into database
-    '''
-    db_session = get_session()
-    for rec_track in rec_tracks:
-        track_uuid = str(uuid.uuid4())[0: 8]
-        rec_track = RecTrack(username=username, track_uuid=track_uuid,
-                             title=rec_track.title,
-                             artist=str(rec_track.artist))
-        db_session.add(rec_track)
-    db_session.commit()
-
-
-def choose_rec_tracks(username):
-    '''
-    Choose all recommendation tracsk from user
-    '''
-    db_session = get_session()
-    rec_tracks = db_session.query(RecTrack)\
-        .filter(RecTrack.username == username).all()
-    return rec_tracks
 
 
 def remain_tracks(username):

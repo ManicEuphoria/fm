@@ -10,7 +10,8 @@ from utils.log import visitlog
 
 
 class TempTrack(object):
-    def __init__(self, title, artist, ratio):
+    def __init__(self, track_uuid, title, artist, ratio):
+        self.track_uuid = track_uuid
         self.title = title
         self.artist = artist
         self.ratio = ratio
@@ -60,7 +61,8 @@ class TrackList(object):
         Transform the similar tracks into the instance of class TempTrack
         and merge them
         '''
-        temp_tracks = [TempTrack(track.item.title, track.item.artist,
+        temp_tracks = [TempTrack(str(uuid.uuid4())[0: 8],
+                                 track.item.title, track.item.artist,
                                  self.ratio)
                        for track in self.tracks_list]
         have_tracks = {}
@@ -107,7 +109,8 @@ class TrackList(object):
                                       [Topitem(...user2), Topitem(...user2)]]
         1. transorm tracks into instance of TempTrack
         '''
-        rec_art_tracks = [TempTrack(track.item.title,
+        rec_art_tracks = [TempTrack(str(uuid.uuid4())[0: 8],
+                                    track.item.title,
                                     track.item.artist, self.ratio)
                           for track in self.tracks_list
                           if track.weight >= MIN_ARTIST_PLAYCOUNT]
