@@ -1,4 +1,5 @@
 import sys
+import json
 import time
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -6,14 +7,15 @@ sys.setdefaultencoding("utf-8")
 from models import userTrack, userM, tagM
 from controllers import user_contr
 from controllers import track_contr
-
+from constants import main, redname
 from controllers.track_contr import choose_tracks, filter_no_tracks
 from controllers.info import fetch_tracks_urls
-# from controllers.last_contr import get_extra_info
 from controllers.track_contr import store_urls, choose_init_tracks
+from utils import fredis
 
 
-def refresh(username, refresh_type='normal'):
+def refresh(username, lib_ratio=main.LIB_RATIO, refresh_type='normal',
+            emotion_range=None):
     '''
     1. Choose those tracks from database
     2. Get extra info about those songs
@@ -21,10 +23,10 @@ def refresh(username, refresh_type='normal'):
     3. Put them in redis
     '''
     if refresh_type == "normal":
-        chosen_tracks = choose_tracks(username)
+        chosen_tracks, next_playlist_track = choose_tracks(
+            username, lib_ratio, emotion_range)
     else:
         chosen_tracks = choose_init_tracks(username)
-        # chosen_tracks = get_extra_info(chosen_tracks)
     fetch_tracks_urls(chosen_tracks)
     chosen_tracks = filter_no_tracks(chosen_tracks)
     store_urls(username, chosen_tracks)
@@ -54,6 +56,17 @@ def refresh_emotion(username, emotion):
 
 
 if __name__ == '__main__':
+    ps = fredis.r_cli.pubsub()
+    ps.subscribe(redname.PLAYLIST_REFRESH)
+    for message in ps.listen():
+        if message['type'] == "message":
+            refresh_msg = json.loads(message['data'])
+            username = refresh_msg["username"]
+            lib_ratio = refresh_msg["lib_ratio"]
+            emotion_range = refresh_msg["emotion_range"]
+            refresh(username, lib_ratio=lib_ratio, refresh_type="normal",
+                    emotion_range=emotion_range)
+
     while 1:
         usernames = userM.get_all_users()
         usernames = [user.username for user in usernames
@@ -71,8 +84,5 @@ if __name__ == '__main__':
         for username in users_in_update:
             refresh(username)
 
-        a = 1
-        a += 1
-        del a
         print('wait 30')
         time.sleep(30)

@@ -1,3 +1,6 @@
+#! /usr/bin/env python
+# -- encoding:utf - 8 --
+
 import time
 import tornado
 import refresh
@@ -7,20 +10,23 @@ from views.base import BaseHandler
 from controllers import track_contr
 from controllers import last_contr, user_contr
 from models import userM, backgroundM, userTrack
-from constants import redname
-from utils import fredis
+from constants import redname, main
+from utils import fredis, zeus
 
 
 class MainHandler(BaseHandler):
     def get(self):
         username = self.get_secure_cookie("username")
-        # username = "Patrickcai"
         # Three kinds of situations
         # 1.user is first time -> welcome 2. user has registered, but
         # the track is not ready -> /loading 3.user can listen to radio
         if not username:
             self.render('welcome.html')
         elif track_contr.is_ready(username):
+            lib_ratio = main.LIB_RATIO
+            emotion_range = zeus.choice(main.EMOTION_RANGE)
+            track = track_contr.get_next_playlist(username, lib_ratio,
+                                                  emotion_range)
             track = track_contr.get_next_song(username, 'normal')
             last_contr.update_playing(username, track)
             self.render("radio.html", track=track)

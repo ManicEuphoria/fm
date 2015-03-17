@@ -1,4 +1,6 @@
 import os
+import base64
+import random
 
 from constants.main import BASE_DIR
 
@@ -39,3 +41,11 @@ def is_similar(a_txt, b_txt):
         if a_word in b_list:
             count += 1
     return True if count >= 1 else False
+
+
+def choice(items_list):
+    '''
+    Choose one item randomly from the items
+    '''
+    random.shuffle(items_list)
+    return random.choice(items_list)

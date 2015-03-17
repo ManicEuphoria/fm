@@ -1,29 +1,10 @@
+import json
+
 from models import userTrack
 from utils.picker import Picker, EmotionPicker
+from constants import redname, main
 from constants.main import STORED_TRACKS_NUMBER, STORED_EMOTION_NUMBER
-
-
-def choose_tracks(username):
-    '''
-    Choose all user tracks from database
-    And pick some tracks
-    '''
-    lib_list = userTrack.choose_all_tracks(username)
-    rec_list = userTrack.choose_rec_tracks(username)
-    picker = Picker(lib_list, rec_list, username)
-    tracks_list = [picker.next_mix()
-                   for i in xrange(STORED_TRACKS_NUMBER)]
-    return tracks_list
-
-
-def choose_emotion_tracks(username, emotion_tracks, emotion):
-    '''
-    Choose all user next emotion tracks
-    '''
-    picker = EmotionPicker(username, emotion, emotion_tracks)
-    tracks_list = [picker.next_track()
-                   for i in xrange(STORED_EMOTION_NUMBER)]
-    return tracks_list
+from utils import fredis, zeus
 
 
 def choose_init_tracks(username):
@@ -34,6 +15,49 @@ def choose_init_tracks(username):
     picker = Picker(lib_list, None, username)
     tracks_list = [picker.next_lib()
                    for i in xrange(10)]
+    return tracks_list
+
+
+def choose_tracks(username, lib_ratio, emotion_range):
+    '''
+    Choose all user tracks from database
+    And pick some tracks
+    '''
+    lib_list = userTrack.choose_all_tracks(username)
+    rec_list = userTrack.choose_rec_tracks(username)
+    picker = Picker(lib_list, rec_list, username, emotion_range)
+    tracks_list = [picker.next_mix(track_number, lib_ratio)
+                   for track_number in xrange(STORED_TRACKS_NUMBER)]
+    next_emotion_range = next_emotion(emotion_range)
+    picker.emotion_range = next_emotion_range
+    return tracks_list
+
+
+def next_emotion(emotion_range):
+    '''
+    Next emotion range
+    '''
+    if emotion_range[0] != 0 and emotion_range[1] != 400:
+        added_value = zeus.choice([-main.EMOTION_ADDED_VLAUE,
+                                   +main.EMOTION_ADDED_VALUE])
+    elif emotion_range[0] == 0:
+        added_value = main.EMOTION_ADDED_VALUE
+    elif emotion_range[1] == 400:
+        added_value = - main.EMOTION_ADDED_VALUE
+
+    next_emotion_range = []
+    next_emotion_range[0] = emotion_range[0] + added_value
+    next_emotion_range[1] = emotion_range[1] + added_value
+    return next_emotion_range
+
+
+def choose_emotion_tracks(username, emotion_tracks, emotion):
+    '''
+    Choose all user next emotion tracks
+    '''
+    picker = EmotionPicker(username, emotion, emotion_tracks)
+    tracks_list = [picker.next_track()
+                   for i in xrange(STORED_EMOTION_NUMBER)]
     return tracks_list
 
 
@@ -65,13 +89,26 @@ def get_next_song(username, radio_type, number=1,):
     If there are more than one song ,return the list
     If there is only one song ,return the track it self
     '''
-    print(radio_type)
     tracks = []
     for i in xrange(number):
         track_uuid = userTrack.get_next_song_id(username, radio_type)
         track = userTrack.get_next_track(username, track_uuid)
         tracks.append(track)
     return tracks[0] if number == 1 else tracks
+
+
+def get_next_playlist(username, lib_ratio, emotion_range):
+    '''
+    Get next playlist first track, and update next tracks list
+    '''
+    next_track = userTrack.get_next_playlist(username)
+    refresh_msg = {
+        "username": username,
+        "lib_ratio": lib_ratio,
+        "emotion_range": emotion_range
+    }
+    fredis.r_cli.publish(redname.PLAYLIST_REFRESH, json.dumps(refresh_msg))
+    return next_track
 
 
 def get_user_top_tracks(username):
