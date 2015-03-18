@@ -16,6 +16,7 @@ from utils import fredis, zeus
 
 class MainHandler(BaseHandler):
     def get(self):
+        # self.write("Sorry 重构代码中, 估计一周内重构完!")
         username = self.get_secure_cookie("username")
         # Three kinds of situations
         # 1.user is first time -> welcome 2. user has registered, but
