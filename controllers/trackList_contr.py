@@ -10,11 +10,11 @@ from utils.log import visitlog
 
 
 class TempTrack(object):
-    def __init__(self, track_uuid, title, artist, ratio):
-        self.track_uuid = track_uuid
+    def __init__(self, title, artist, ratio):
         self.title = title
         self.artist = artist
         self.ratio = ratio
+        self.track_uuid = None
         self.track_id = None
         self.rate = None
 
@@ -61,10 +61,11 @@ class TrackList(object):
         Transform the similar tracks into the instance of class TempTrack
         and merge them
         '''
-        temp_tracks = [TempTrack(str(uuid.uuid4())[0: 8],
-                                 track.item.title, track.item.artist,
+        temp_tracks = [TempTrack(track.item.title, track.item.artist,
                                  self.ratio)
                        for track in self.tracks_list]
+        for temp_track in temp_tracks:
+            temp_track.track_uuid = str(uuid.uuid4())[0: 8]
         have_tracks = {}
         for temp_track in temp_tracks:
             track_id = str(temp_track.title) + "||" + str(temp_track.artist)
@@ -109,11 +110,12 @@ class TrackList(object):
                                       [Topitem(...user2), Topitem(...user2)]]
         1. transorm tracks into instance of TempTrack
         '''
-        rec_art_tracks = [TempTrack(str(uuid.uuid4())[0: 8],
-                                    track.item.title,
+        rec_art_tracks = [TempTrack(track.item.title,
                                     track.item.artist, self.ratio)
                           for track in self.tracks_list
                           if track.weight >= MIN_ARTIST_PLAYCOUNT]
+        for track in rec_art_tracks:
+            track.track_uuid = str(uuid.uuid4())[0: 8]
         return rec_art_tracks
 
     def _merge_neighbours_tracks(self, all_users_tracks):

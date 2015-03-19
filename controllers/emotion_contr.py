@@ -85,12 +85,13 @@ def calculate_tags(user_track, progress):
     '''
     Download music and calculate the tags emotion
     '''
+    if user_track.emotion_value:
+        return user_track
     user_tags = last_contr.get_top_tags(user_track)
     track_tags_list = _transform_to_tracktag(user_tags)
-    emotion_dict = calculate_emotion(track_tags_list, axis="x")
-    track_emotion = TrackEmotion(user_track.track_uuid, user_track.artist,
-                                 user_track.title, emotion_dict)
-    return track_emotion
+    emotion_value = calculate_emotion(track_tags_list, axis="x")
+    user_track.emotion_value = emotion_value
+    return user_track
 
 
 def _transform_to_tracktag(user_tags):
@@ -120,8 +121,9 @@ def calculate_emotion(track_tags_list, axis):
     such as [("rock", 1), ("pop", 2)]
     middel value is a dict, value is measured in 100
     {"high": 83, "low":12, "up": 4, "down":4}
-    return value is
-    ('high', 83) or ("no", -1)
+    return value is a value represents the emotion
+    For example 311 represnt high
+
     '''
     if axis == "x":
         axis_type = x_axis_type
@@ -151,9 +153,29 @@ def calculate_emotion(track_tags_list, axis):
     emotion_result = _to_percentage(emotion_result)
     emotion = max(emotion_result, key=emotion_result.get)
     emotion_result = (emotion, emotion_result[emotion])
+    # This is a just rought version
+    emotion_value = _emotion_to_value(emotion_result)
     if not track_tags_list:
-        emotion_result = ['no', -1]
-    return emotion_result
+        emotion_value = -100
+    return emotion_value
+
+
+def _emotion_to_value(emotion_result):
+    '''
+    Transfrom from emotion and its value to total value
+    '''
+    emotion_value_dict = {
+        "low": 100,
+        'down': 200,
+        "up": 200,
+        "high": 300
+    }
+    emotion, temp_value = emotion_result
+    if emotion in ['low', 'down']:
+        emotion_value = emotion_value_dict[emotion] - temp_value
+    elif emotion in ['up', "high"]:
+        emotion_value = emotion_value_dict[emotion] + temp_value
+    return emotion_value
 
 
 def _to_percentage(emotion_result):

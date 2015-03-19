@@ -12,8 +12,9 @@ def choose_init_tracks(username):
     Pick for the user initialization
     '''
     lib_list = userTrack.choose_all_tracks(username)
-    picker = Picker(lib_list, None, username)
-    tracks_list = [picker.next_lib()
+    lib_list = userTrack.choose_tracks_info(lib_list)
+    picker = Picker(lib_list, None, username, None)
+    tracks_list = [picker.next_init_lib()
                    for i in xrange(10)]
     return tracks_list
 
@@ -24,16 +25,20 @@ def choose_tracks(username, lib_ratio, emotion_range):
     And pick some tracks
     '''
     lib_list = userTrack.choose_all_tracks(username)
+    lib_list = userTrack.choose_tracks_info(lib_list)
+
     rec_list = userTrack.choose_rec_tracks(username)
+    rec_list = userTrack.choose_tracks_info(rec_list)
+
     picker = Picker(lib_list, rec_list, username, emotion_range)
     tracks_list = [picker.next_mix(track_number, lib_ratio)
                    for track_number in xrange(STORED_TRACKS_NUMBER)]
-    next_emotion_range = next_emotion(emotion_range)
+    next_emotion_range = _next_emotion(emotion_range)
     picker.emotion_range = next_emotion_range
     return tracks_list
 
 
-def next_emotion(emotion_range):
+def _next_emotion(emotion_range):
     '''
     Next emotion range
     '''
@@ -70,16 +75,20 @@ def filter_no_tracks(chosen_tracks):
     return chosen_tracks
 
 
-def store_urls(username, chosen_tracks, erase=False, radio_type="normal"):
+def store_urls(username, chosen_tracks, erase=False, radio_type="normal",
+               next_playlist_track=None):
     '''
     First delete past redis info,the store the mp3 urls into redis
     '''
     if erase:
         userTrack.del_songs_ids_info(username, radio_type)
-    if radio_type == "normal":
+    if radio_type == "normal" and next_playlist_track:
         userTrack.set_songs_ids(username, chosen_tracks)
+        userTrack.set_next_playlist(username, next_playlist_track)
     elif radio_type == "emotion":
         userTrack.set_songs_ids(username, chosen_tracks, radio_type=radio_type)
+    if next_playlist_track:
+        chosen_tracks += next_playlist_track
     userTrack.set_songs_info(username, chosen_tracks)
 
 
@@ -117,6 +126,7 @@ def get_user_top_tracks(username):
     a certian number
     '''
     tracks_list = userTrack.get_top_level_tracks(username)
+    tracks_list = userTrack.choose_tracks_info(tracks_list)
     final_tracks = []
     artists_frequency = {}
     for track in tracks_list:

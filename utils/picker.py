@@ -4,7 +4,7 @@ from constants.main import MAX_PAST_ARTISTS, LEVELS_ORDER, MAX_PAST_TRACKS
 from constants.main import MAX_PAST_EMOTION_ARTISTS, MAX_PAST_EMOTION_TRACKS
 from constants.main import EMOTION_ORDER
 
-from utils import fredis
+from utils import fredis, zeus
 
 LIB_RATIO = 75
 
@@ -95,9 +95,9 @@ class Picker(object):
         '''
         is_lib = main.IS_LIB[lib_ratio][track_number]
         if is_lib:
-            return self.next_lib()
+            return self.next_lib(track_number)
         else:
-            return self.next_rec()
+            return self.next_rec(track_number)
 
     def next_rec(self, track_number):
         '''
@@ -117,11 +117,23 @@ class Picker(object):
         next_track.type = "rec"
         return next_track
 
+    def next_init_lib(self):
+        random_track = zeus.choice(self.lib_list)
+        while 1:
+            random_track = random.choice(self.lib_list)
+            if not self.past_artists.exist(random_track.artist) and\
+                    not self.past_tracks.exist(random_track.track_uuid):
+                break
+        self.past_tracks.append(random_track.track_uuid)
+        self.past_artists.append(random_track.artist)
+        random_track.type = "lib"
+        return random_track
+
     def next_lib(self, track_number):
         '''
         Choose next track from the user's own library
         '''
-        emo_range = main.emotion_range_add(self.emotion_ratio,
+        emo_range = main.emotion_range_add(self.emotion_range,
                                            track_number)
         emotion_tracks = [emotion_track for emotion_track in self.lib_list
                           if emo_range[0] <= emotion_track.emotion_value <=

@@ -27,6 +27,7 @@ class TrackInfo(Base):
     album_id = Column(String(length=100))
     artist_id = Column(String(length=100))
     duration = Column(String(length=100))
+    emotion_value = Column(Integer)
 
 
 class UserTrack(Base):
@@ -65,6 +66,20 @@ def add_tracks_info(final_tracks_list):
                               artist=final_track.artist,
                               title=final_track.title)
             db_session.add(track)
+    db_session.commit()
+
+
+def add_tracks_emotion(tracks_list):
+    '''
+    Add the tracks' emotion to db
+    '''
+    db_session = get_session()
+    tracks_info = dict([(track.track_uuid, track.emotion_value)
+                        for track in tracks_list])
+    emotion_tracks = db_session.query(TrackInfo)\
+        .filter(TrackInfo.track_uuid.in_(tracks_info.keys())).all()
+    for emotion_track in emotion_tracks:
+        emotion_track.emotion = tracks_info[emotion_track.track_uuid]
     db_session.commit()
 
 
@@ -163,6 +178,13 @@ def set_songs_ids(username, chosen_tracks, radio_type="normal"):
         elif radio_type == "emotion":
             to_play_tracks = "emotion:toplay:%s:list" % (username)
         fredis.r_cli.rpush(to_play_tracks, track.track_uuid)
+
+
+def set_next_playlist(username, next_playlist_track):
+    '''
+    Set next playlist songs id into redis
+    '''
+    fredis.r_cli.set(redname.NEXT_PLAYLIST, next_playlist_track)
 
 
 def del_songs_ids_info(username, radio_type):

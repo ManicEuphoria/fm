@@ -22,6 +22,7 @@ def refresh(username, lib_ratio=main.LIB_RATIO, refresh_type='normal',
     2. Get song id  from wangyi
     3. Put them in redis
     '''
+    next_playlist_track = None
     if refresh_type == "normal":
         chosen_tracks, next_playlist_track = choose_tracks(
             username, lib_ratio, emotion_range)
@@ -29,7 +30,8 @@ def refresh(username, lib_ratio=main.LIB_RATIO, refresh_type='normal',
         chosen_tracks = choose_init_tracks(username)
     fetch_tracks_urls(chosen_tracks)
     chosen_tracks = filter_no_tracks(chosen_tracks)
-    store_urls(username, chosen_tracks)
+    store_urls(username, chosen_tracks,
+               next_playlist_track=next_playlist_track)
 
 
 def check_and_refresh(username):
@@ -66,23 +68,3 @@ if __name__ == '__main__':
             emotion_range = refresh_msg["emotion_range"]
             refresh(username, lib_ratio=lib_ratio, refresh_type="normal",
                     emotion_range=emotion_range)
-
-    while 1:
-        usernames = userM.get_all_users()
-        usernames = [user.username for user in usernames
-                     if not userM.is_in_waiting_user(user.username)]
-        print(usernames)
-        users_tracks = []
-        for username in usernames:
-            remain_number = userTrack.remain_tracks(username)
-            print(remain_number)
-            if remain_number <= 20:
-                users_tracks.append([username, remain_number])
-        users_in_update = sorted(users_tracks, key=lambda x: x[1])
-        users_in_update = [user[0] for user in users_in_update]
-        print(users_in_update)
-        for username in users_in_update:
-            refresh(username)
-
-        print('wait 30')
-        time.sleep(30)

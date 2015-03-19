@@ -104,7 +104,7 @@ def get_dfsid_url(song_id):
     return url
 
 
-def emotion_range_add(emotion_ratio, track_number):
+def emotion_range_add(emotion_range, track_number):
     '''
     According to the track number determine the final emotion range
     '''
@@ -117,6 +117,6 @@ def emotion_range_add(emotion_ratio, track_number):
     }
     add_emotion = track_emotion[track_number]
     added_start_value, added_end_value = add_emotion
-    emotion_ratio[0] += added_start_value
-    emotion_ratio[1] += added_end_value
-    return emotion_ratio
+    emotion_range[0] += added_start_value
+    emotion_range[1] += added_end_value
+    return emotion_range
