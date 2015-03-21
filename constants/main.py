@@ -109,11 +109,11 @@ def emotion_range_add(emotion_range, track_number):
     According to the track number determine the final emotion range
     '''
     track_emotion = {
-        0: (0, 15),
-        1: (5, 20),
-        2: (10, 25),
-        3: (15, 25),
-        4: (0, 25),
+        0: [0, 15],
+        1: [5, 20],
+        2: [10, 25],
+        3: [15, 25],
+        4: [0, 25],
     }
     add_emotion = track_emotion[track_number]
     added_start_value, added_end_value = add_emotion

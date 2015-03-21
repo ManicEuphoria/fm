@@ -5,18 +5,17 @@ sys.setdefaultencoding('utf-8')
 import time
 
 from controllers import last_contr, track_contr, info
-from models import userTrack, tagM
+from models import userTrack
 from controllers import emotion_contr
 from controllers import trackList_contr, user_contr
 from models import userM
 from constants.main import TOP_RATIO, RECENT_RATIO, LOVED_RATIO
 from utils import geventWorker
 from utils.geventWorker import Worker
-from utils.log import visitlog
 from refresh import refresh
 
-ALL_PAGE_NUMBER = 1
-RECENT_PAGE_NUMBER = 1
+ALL_PAGE_NUMBER = 30
+RECENT_PAGE_NUMBER = 10
 LOVED_PAGE_NUMBER = 1
 
 
@@ -45,7 +44,7 @@ def _gevent_task(worker_number, page_number, func, ratio):
 def get_top_tracks(username):
     playcount = last_contr.get_playcount(username)
     all_page_number = playcount / 2000
-    all_page_number = 5
+    # all_page_number = 5
     all_track_tasks = xrange(1, all_page_number + 1)
     all_track_gevent = Worker(50)
     all_track_boss = all_track_gevent.generate_boss(all_track_tasks)
@@ -120,13 +119,13 @@ def init_emotion(username):
     '''
     start emotion tracks
     '''
-    user_tracks = userTrack.choose_all_tracks(username)[0: 20]
+    user_tracks = userTrack.choose_all_tracks(username)
     user_tracks = userTrack.choose_tracks_info(user_tracks)
     emotion_gevent = geventWorker.Worker(35, 'add_element')
     emotion_gevent.pack(user_tracks, emotion_contr.calculate_tags)
     lib_emotion_array = emotion_gevent.return_results()
 
-    rec_tracks = userTrack.choose_rec_tracks(username)[0: 20]
+    rec_tracks = userTrack.choose_rec_tracks(username)
     rec_tracks = userTrack.choose_tracks_info(rec_tracks)
     rec_gevent = geventWorker.Worker(35, 'add_element')
     rec_gevent.pack(rec_tracks, emotion_contr.calculate_tags)
@@ -143,7 +142,7 @@ def store_tracks_info(username):
     '''
     users_tracks = userTrack.choose_all_tracks(username) + \
         userTrack.choose_rec_tracks(username)
-    user_tracks = userTrack.choose_tracks_info(users_tracks)[0: 30]
+    user_tracks = userTrack.choose_tracks_info(users_tracks)
     info.fetch_tracks_urls(user_tracks)
     userTrack.store_tracks_info(user_tracks)
 
@@ -156,17 +155,21 @@ def init(username):
 
     init_emotion(username)
     store_tracks_info(username)
-    refresh(username, emotion_range=(100, 125))
+    refresh(username, emotion_range=[100, 125])
 
 
 if __name__ == '__main__':
     while 1:
         username = user_contr.get_waiting_user()
         if username:
+            a = time.time()
             print('start')
             last_user = last_contr.get_user(username)
             init(username)
-            userM.del_waiting_user(username)
+            print(time.time() - a)
+            print("end")
+            exit(0)
+            # userM.del_waiting_user(username)
         else:
             print("wait 5")
             time.sleep(2)

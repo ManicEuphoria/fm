@@ -35,7 +35,8 @@ def choose_tracks(username, lib_ratio, emotion_range):
                    for track_number in xrange(STORED_TRACKS_NUMBER)]
     next_emotion_range = _next_emotion(emotion_range)
     picker.emotion_range = next_emotion_range
-    return tracks_list
+    next_playlist = picker.next_mix(0, lib_ratio)
+    return tracks_list, next_playlist
 
 
 def _next_emotion(emotion_range):
@@ -43,14 +44,14 @@ def _next_emotion(emotion_range):
     Next emotion range
     '''
     if emotion_range[0] != 0 and emotion_range[1] != 400:
-        added_value = zeus.choice([-main.EMOTION_ADDED_VLAUE,
+        added_value = zeus.choice([-main.EMOTION_ADDED_VALUE,
                                    +main.EMOTION_ADDED_VALUE])
     elif emotion_range[0] == 0:
         added_value = main.EMOTION_ADDED_VALUE
     elif emotion_range[1] == 400:
         added_value = - main.EMOTION_ADDED_VALUE
 
-    next_emotion_range = []
+    next_emotion_range = [None, None]
     next_emotion_range[0] = emotion_range[0] + added_value
     next_emotion_range[1] = emotion_range[1] + added_value
     return next_emotion_range
@@ -88,7 +89,7 @@ def store_urls(username, chosen_tracks, erase=False, radio_type="normal",
     elif radio_type == "emotion":
         userTrack.set_songs_ids(username, chosen_tracks, radio_type=radio_type)
     if next_playlist_track:
-        chosen_tracks += next_playlist_track
+        chosen_tracks.append(next_playlist_track)
     userTrack.set_songs_info(username, chosen_tracks)
 
 

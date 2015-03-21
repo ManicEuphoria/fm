@@ -27,6 +27,7 @@ class TrackInfo(Base):
     album_id = Column(String(length=100))
     artist_id = Column(String(length=100))
     duration = Column(String(length=100))
+    song_id = Column(String(length=100))
     emotion_value = Column(Integer)
 
 
@@ -79,7 +80,7 @@ def add_tracks_emotion(tracks_list):
     emotion_tracks = db_session.query(TrackInfo)\
         .filter(TrackInfo.track_uuid.in_(tracks_info.keys())).all()
     for emotion_track in emotion_tracks:
-        emotion_track.emotion = tracks_info[emotion_track.track_uuid]
+        emotion_track.emotion_value = tracks_info[emotion_track.track_uuid]
     db_session.commit()
 
 
@@ -124,8 +125,9 @@ def store_tracks_info(user_tracks):
         track_info.mp3_url = track.mp3_url
         track_info.album_url = track.album_url
         track_info.album_id = track.album_id
-        track_info.aritst_id = track.artist_id
+        track_info.artist_id = track.artist_id
         track_info.duration = track.duration
+        track_info.song_id = track.song_id
     db_session.commit()
 
 
@@ -184,7 +186,7 @@ def set_next_playlist(username, next_playlist_track):
     '''
     Set next playlist songs id into redis
     '''
-    fredis.r_cli.set(redname.NEXT_PLAYLIST, next_playlist_track)
+    fredis.r_cli.set(redname.NEXT_PLAYLIST + username, next_playlist_track)
 
 
 def del_songs_ids_info(username, radio_type):

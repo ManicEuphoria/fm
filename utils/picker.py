@@ -99,24 +99,6 @@ class Picker(object):
         else:
             return self.next_rec(track_number)
 
-    def next_rec(self, track_number):
-        '''
-        Choose next track from the user's recommendation
-        '''
-        emo_range = main.emotion_range_add(self.emotion_ratio,
-                                           track_number)
-        next_tracks = [emotion_track for emotion_track in self.rec_list
-                       if emo_range[0] <= emotion_track.emotion_value <=
-                       emo_range[1]]
-
-        while 1:
-            next_track = random.choice(next_tracks)
-            if not self.past_artists.exist(next_track.artist):
-                break
-        self.past_artists.append(next_track.artist)
-        next_track.type = "rec"
-        return next_track
-
     def next_init_lib(self):
         random_track = zeus.choice(self.lib_list)
         while 1:
@@ -135,15 +117,14 @@ class Picker(object):
         '''
         emo_range = main.emotion_range_add(self.emotion_range,
                                            track_number)
-        emotion_tracks = [emotion_track for emotion_track in self.lib_list
-                          if emo_range[0] <= emotion_track.emotion_value <=
-                          emo_range[1]]
+        emotion_tracks = self.lib_list
         random.shuffle(emotion_tracks)
         random_track = random.choice(emotion_tracks)
         while 1:
             random_track = random.choice(emotion_tracks)
             if not self.past_artists.exist(random_track.artist) and\
-                    not self.past_tracks.exist(random_track.track_uuid):
+                    not self.past_tracks.exist(random_track.track_uuid) and\
+                    self._in_emo_range(emo_range, random_track.emotion_value):
                 break
 
         # If in the level which can not satisy both rules,pick one
@@ -155,3 +136,28 @@ class Picker(object):
         self.past_artists.append(random_track.artist)
         random_track.type = "lib"
         return random_track
+
+    def next_rec(self, track_number):
+        '''
+        Choose next track from the user's recommendation
+        '''
+        emo_range = main.emotion_range_add(self.emotion_range,
+                                           track_number)
+        next_tracks = self.rec_list
+        while 1:
+            next_track = random.choice(next_tracks)
+            if not self.past_artists.exist(next_track.artist) and\
+                    self._in_emo_range(emo_range, next_track.emotion_value):
+                break
+        self.past_artists.append(next_track.artist)
+        next_track.type = "rec"
+        return next_track
+
+    def _in_emo_range(self, emo_range, emotion_value):
+        '''
+        Return True if the emotion_value is in the emo_range
+        '''
+        if emo_range[0] <= emotion_value <= emo_range[1]:
+            return True
+        else:
+            return False
