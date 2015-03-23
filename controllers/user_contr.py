@@ -13,10 +13,3 @@ def add_waiting_user(username):
     in the redis
     '''
     userM.add_waiting_user(username)
-
-
-def get_waiting_user():
-    '''
-    Get user who have not crawled the last.fm randomly
-    '''
-    return userM.get_waiting_user()

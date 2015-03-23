@@ -6,11 +6,12 @@ import time
 
 from controllers import last_contr, track_contr, info
 from models import userTrack
+from constants import redname
 from controllers import emotion_contr
 from controllers import trackList_contr, user_contr
 from models import userM
 from constants.main import TOP_RATIO, RECENT_RATIO, LOVED_RATIO
-from utils import geventWorker
+from utils import geventWorker, fredis
 from utils.geventWorker import Worker
 from refresh import refresh
 
@@ -115,27 +116,6 @@ def get_recommendation(username):
     trackList_contr.rec_to_db(username, rec_tracks)
 
 
-def init_emotion(username):
-    '''
-    start emotion tracks
-    '''
-    user_tracks = userTrack.choose_all_tracks(username)
-    user_tracks = userTrack.choose_tracks_info(user_tracks)
-    emotion_gevent = geventWorker.Worker(35, 'add_element')
-    emotion_gevent.pack(user_tracks, emotion_contr.calculate_tags)
-    lib_emotion_array = emotion_gevent.return_results()
-
-    rec_tracks = userTrack.choose_rec_tracks(username)
-    rec_tracks = userTrack.choose_tracks_info(rec_tracks)
-    rec_gevent = geventWorker.Worker(35, 'add_element')
-    rec_gevent.pack(rec_tracks, emotion_contr.calculate_tags)
-    rec_emotion_array = rec_gevent.return_results()
-
-    # emotion_contr.filter_no_tags(lib_emotion_array, rec_emotion_array)
-
-    userTrack.add_tracks_emotion(lib_emotion_array + rec_emotion_array)
-
-
 def store_tracks_info(username):
     '''
     Fetch tracks mp3 url and store them
@@ -147,29 +127,38 @@ def store_tracks_info(username):
     userTrack.store_tracks_info(user_tracks)
 
 
+def init_emotion(username):
+    '''
+    start emotion tracks
+    '''
+    user_tracks = userTrack.choose_all_tracks(username)
+    user_tracks = userTrack.choose_tracks_info(user_tracks)
+    emotion_gevent = geventWorker.Worker(50, 'add_element')
+    emotion_gevent.pack(user_tracks, emotion_contr.calculate_tags)
+    lib_emotion_array = emotion_gevent.return_results()
+
+    rec_tracks = userTrack.choose_rec_tracks(username)
+    rec_tracks = userTrack.choose_tracks_info(rec_tracks)
+    rec_gevent = geventWorker.Worker(50, 'add_element')
+    rec_gevent.pack(rec_tracks, emotion_contr.calculate_tags)
+    rec_emotion_array = rec_gevent.return_results()
+
+    # emotion_contr.filter_no_tags(lib_emotion_array, rec_emotion_array)
+
+    userTrack.add_tracks_emotion(lib_emotion_array + rec_emotion_array)
+
+
 def init(username):
     get_own_library(username)
     refresh(username, refresh_type="init")
 
-    get_recommendation(username)
-
-    init_emotion(username)
-    store_tracks_info(username)
-    refresh(username, emotion_range=[100, 125])
+    userM.add_rec_user(username)
 
 
 if __name__ == '__main__':
-    while 1:
-        username = user_contr.get_waiting_user()
-        if username:
-            a = time.time()
-            print('start')
+    ps = fredis.subscribe(redname.WAITING_USER_SET)
+    for message in ps.listen():
+        if message['type'] == 'message':
+            username = message['data']
             last_user = last_contr.get_user(username)
             init(username)
-            print(time.time() - a)
-            print("end")
-            exit(0)
-            # userM.del_waiting_user(username)
-        else:
-            print("wait 5")
-            time.sleep(2)

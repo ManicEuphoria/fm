@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
+from constants import redname
 from utils import fredis
 from fbase import get_session
 
@@ -29,14 +30,28 @@ def add_waiting_user(username):
     For those users who have not crawled the last.fm, put them
     in the redis
     '''
-    fredis.r_cli.sadd(fredis.waiting_user_set, username)
+    fredis.r_cli.publish(redname.WAITING_USER_SET, username)
 
 
-def get_waiting_user():
+def add_rec_user(username):
     '''
-    Get user who have not crawled the last.fm randomly
+    Add user who is going to init recommendation
     '''
-    return fredis.r_cli.srandmember(fredis.waiting_user_set)
+    fredis.r_cli.publish(redname.WAITING_REC_USER)
+
+
+def add_emo_user(username):
+    '''
+    Add user who is going to init emotion
+    '''
+    fredis.r_cli.publish(redname.WAITING_EMO_USER)
+
+
+def add_info_user(username):
+    '''
+    Add user who is going to init info
+    '''
+    fredis.r_cli.publish(redname.WAITING_INFO_USER)
 
 
 def is_in_waiting_user(username):
@@ -88,3 +103,17 @@ def get_all_users():
     session = get_session()
     all_users = session.query(User).filter(User.is_valid == 1).all()
     return all_users
+
+
+def is_all_finished(username):
+    '''
+    CHECK If the user has init all(lib, rec, emotion, info)
+    '''
+    return fredis.r_cli.sismember(redname.IS_FINISHED_USER, username)
+
+
+def add_to_all_finished(username):
+    '''
+    ADD to the list if the user has init all(lib, rec, emotion, info)
+    '''
+    fredis.r_cli.sadd(redname.IS_FINISHED_USER)
