@@ -22,14 +22,22 @@ class MainHandler(BaseHandler):
         # the track is not ready -> /loading 3.user can listen to radio
         if not username:
             self.render('welcome.html')
-        elif track_contr.is_ready(username):
-            lib_ratio = main.LIB_RATIO
-            emotion_range = zeus.choice(main.EMOTION_RANGE)
-            track = track_contr.get_next_playlist(username, lib_ratio,
-                                                  emotion_range)
-            track = track_contr.get_next_song(username, 'normal')
-            last_contr.update_playing(username, track)
-            self.render("radio.html", track=track)
+        elif userTrack.is_pre_tracks_exist(username) or\
+                userM.is_all_finished(username):
+            if userTrack.is_pre_tracks_exist(username):
+                radio_type = "pre"
+                self.set_secure_cookie('radio_type', radio_type)
+                track = track_contr.get_next_song(username, "normal")
+                self.render("radio.html", track=track)
+            else:
+                radio_type = "normal"
+                self.set_secure_cookie('normal', radio_type)
+                lib_ratio = main.LIB_RATIO
+                emotion_range = zeus.choice(main.EMOTION_RANGE)
+                track = track_contr.get_next_playlist(username, lib_ratio,
+                                                      emotion_range)
+                last_contr.update_playing(username, track)
+                self.render("radio.html", track=track)
         else:
             self.render('welcome.html')
 
@@ -66,11 +74,19 @@ class TestHandler(BaseHandler):
 class NextHandler(BaseHandler):
     def get(self):
         username = self.get_secure_cookie("username")
-        # username = "Patrickcai"
-        radio_type = self.get_argument('radio_type', None)
+        radio_type = self.get_secure_cookie('radio_type')
+        last_track = self.get_argument("last_track", None)
+        lib_ratio = self.get_secure_cookie("lib_ratio")
+        emotion_range = self.get_secure_cookie("emotion_range")
+        track_number = self.get_secure_cookie("track_number")
+        if radio_type == "pre":
+            track = track_contr.get_next_song(username, "normal")
+        elif radio_type == "normal":
+            if last_track:# Not switch the track
+                pass
+
         track = track_contr.get_next_song(username, radio_type)
         last_contr.update_playing(username, track)
-        last_track = self.get_argument("last_track", None)
         if last_track:
             last_contr.scrobble(username, last_track)
         background_url = backgroundM.get_random()

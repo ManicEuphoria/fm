@@ -93,18 +93,29 @@ def store_urls(username, chosen_tracks, erase=False, radio_type="normal",
     userTrack.set_songs_info(username, chosen_tracks)
 
 
-def get_next_song(username, radio_type, number=1,):
+def get_next_song(username, radio_type, number=1):
     '''
     Get the url and extra info about the next song
     If there are more than one song ,return the list
     If there is only one song ,return the track it self
     '''
+    if radio_type == "pre":
+        track_uuid = userTrack.get_next_pre_track(username)
+        to_play_track = get_track_info(track_uuid, 'lib')
     tracks = []
     for i in xrange(number):
         track_uuid = userTrack.get_next_song_id(username, radio_type)
         track = userTrack.get_next_track(username, track_uuid)
         tracks.append(track)
     return tracks[0] if number == 1 else tracks
+
+
+def get_track_info(track_uuid, track_type):
+    '''
+    From the track uuid , get the mp3 url info first , then get the 
+    level and is_star if track type is lib
+    '''
+    
 
 
 def get_next_playlist(username, lib_ratio, emotion_range):
@@ -118,6 +129,7 @@ def get_next_playlist(username, lib_ratio, emotion_range):
         "emotion_range": emotion_range
     }
     fredis.r_cli.publish(redname.PLAYLIST_REFRESH, json.dumps(refresh_msg))
+    # refresh.py to refresh the this playlist track
     return next_track
 
 

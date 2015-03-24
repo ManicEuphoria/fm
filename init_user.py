@@ -3,7 +3,9 @@ import os
 reload(sys)
 sys.setdefaultencoding('utf-8')
 import time
+import random
 
+from constants import main
 from controllers import last_contr, track_contr, info
 from models import userTrack
 from constants import redname
@@ -148,9 +150,22 @@ def init_emotion(username):
     userTrack.add_tracks_emotion(lib_emotion_array + rec_emotion_array)
 
 
+def init_pre(username):
+    '''
+    Download pre 20 tracks' mp3 info
+    Put them into redis
+    '''
+    pre_tracks = userTrack.choose_all_tracks(username)
+    pre_tracks = random.sample(pre_tracks, main.PRE_TRACKS_NUMBER)
+    info.fetch_tracks_urls(pre_tracks)
+    track_contr.filter_no_tracks(pre_tracks)
+    userTrack.store_tracks_info(pre_tracks)
+    userTrack.store_pre_tracks(username, pre_tracks)
+
+
 def init(username):
     get_own_library(username)
-    refresh(username, refresh_type="init")
+    init_pre(username)
 
     userM.add_rec_user(username)
 

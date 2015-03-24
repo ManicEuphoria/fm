@@ -2,7 +2,7 @@ from init_user import get_recommendation, init_emotion, refresh
 from init_user import store_tracks_info
 from utils import fredis
 from constants import redname
-from models import userM
+from models import userTrack, userM
 
 
 if __name__ == '__main__':
@@ -13,5 +13,6 @@ if __name__ == '__main__':
             get_recommendation(username)
             init_emotion(username)
             store_tracks_info(username)
-            refresh(username, emotion_range=[100, 125])
+            userTrack.store_user_tracks(username)
+            userTrack.delete_pre_tracks(username)
             userM.add_to_all_finished(username)

@@ -39,9 +39,9 @@ class UserTrack(Base):
     level = Column(Integer)
     is_star = Column(Integer)
 
-    def __repr__(self):
-        return "title %s artist %s level %s is_star %s" % (
-            self.title, self.artist, self.level, self.is_star)
+    # def __repr__(self):
+    #     return "title %s artist %s level %s is_star %s" % (
+    #         self.title, self.artist, self.level, self.is_star)
 
 
 class RecTrack(Base):
@@ -129,6 +129,55 @@ def store_tracks_info(user_tracks):
         track_info.duration = track.duration
         track_info.song_id = track.song_id
     db_session.commit()
+
+
+def store_user_tracks(username):
+    '''
+    Store user's lib and rec tracks into redis
+    '''
+    lib_tracks = choose_all_tracks(username)
+    for lib_track in lib_tracks:
+        lib_user_uuids = redname.PERSONAL_LIB_UUID + username
+        fredis.r_cli.rpush(lib_user_uuids, lib_track.track_uuid)
+        lib_user_track = redname.PERSONAL_LIB + username + ":%s" % (
+            str(lib_track.track_uuid))
+        fredis.r_cli.hset(lib_user_track, "level", str(lib_track.level))
+        fredis.r_cli.hset(lib_user_track, "is_star", str(lib_track.is_star))
+
+    rec_tracks = choose_rec_tracks(username)
+    for rec_track in rec_tracks:
+        rec_user_uuids = redname.PERSONAL_REC_UUID + username
+        fredis.r_cli.rpush(rec_user_uuids, rec_track.track_uuid)
+
+
+def store_pre_tracks(username, pre_tracks):
+    '''
+    Store the track uuids of the preload tracks into redis
+    '''
+    for pre_track in pre_tracks:
+        fredis.r_cli.rpush(redname.PRE_TRACKS + username,
+                           pre_track.track_uuid)
+
+
+def delete_pre_tracks(username):
+    '''
+    When the user has init all the lib, rec, emo delete the pre tracks
+    '''
+    fredis.r_cli.delete(redname.PRE_TRACKS + username)
+
+
+def is_pre_tracks_exist(username):
+    '''
+    Check the user has deleted all the pre tracks
+    '''
+    return fredis.r_cli.lpop(redname.PRE_TRACKS + username)
+
+
+def get_next_pre_track(username):
+    '''
+    Return next pre track's uuid
+    '''
+    return fredis.r_cli.lpop(redname.PRE_TRACKS + username)
 
 
 def choose_tracks_info(all_tracks):
