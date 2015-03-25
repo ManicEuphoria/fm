@@ -4,7 +4,7 @@ from models import userTrack
 from utils.picker import Picker, EmotionPicker
 from constants import redname, main
 from constants.main import STORED_TRACKS_NUMBER, STORED_EMOTION_NUMBER
-from utils import fredis, zeus
+from utils import fredis, zeus, picker
 
 
 def choose_init_tracks(username):
@@ -93,34 +93,76 @@ def store_urls(username, chosen_tracks, erase=False, radio_type="normal",
     userTrack.set_songs_info(username, chosen_tracks)
 
 
-def get_next_song(username, radio_type, number=1):
+def get_next_song(username, radio_type,
+                  lib_ratio=None, emotion_range=None, track_number=None,
+                  reverse_type=None):
     '''
     Get the url and extra info about the next song
     If there are more than one song ,return the list
     If there is only one song ,return the track it self
+
+    reverse_type is whether lib/rec reverse
     '''
     if radio_type == "pre":
         track_uuid = userTrack.get_next_pre_track(username)
-        to_play_track = get_track_info(track_uuid, 'lib')
-    tracks = []
-    for i in xrange(number):
-        track_uuid = userTrack.get_next_song_id(username, radio_type)
-        track = userTrack.get_next_track(username, track_uuid)
-        tracks.append(track)
-    return tracks[0] if number == 1 else tracks
+        to_play_track = userTrack.get_one_track_detail(track_uuid)
+        to_play_track = get_track_info(username, to_play_track, 'lib')
+        return to_play_track
+    elif radio_type == "normal":
+        track_picker = picker.Picker(username, emotion_range)
+        to_play_track = track_picker.next_mix(track_number, lib_ratio,
+                                              reverse_type)
+        to_play_track = get_track_info(username, to_play_track,
+                                       to_play_track.type)
+        return to_play_track
 
 
-def get_track_info(track_uuid, track_type):
+def next_status(lib_ratio, emotion_range, track_number, last_track, last_type):
     '''
-    From the track uuid , get the mp3 url info first , then get the 
+    Get next track's status according to the last track
+    1. Switch the track or not
+    '''
+    # @todo (the lib ratio should be adjusted slightly)
+    if last_type == "lib":
+        lib_ratio -= 20
+    elif last_type == "rec":
+        lib_ratio += 20
+
+    switch_track_number = [3, 4, ]
+    if not last_track and (track_number == 0 or
+                           (track_number in switch_track_number and
+                            last_type == "lib")):
+        # Switch the emotion
+        track_number = 0
+        emotion_range = zeus.choice(main.EMOTION_RANGE)
+    elif last_track and track_number == 4:
+        # The last track in the track list
+        track_number = 0
+        emotion_range = [emotion + 50 for emotion in emotion_range]
+    elif last_track:
+        # The next track in original track list
+        track_number += 1
+    return lib_ratio, emotion_range, track_number
+
+
+def get_track_info(username, to_play_track, track_type):
+    '''
+    From the track uuid , get the mp3 url info first , then get the
     level and is_star if track type is lib
     '''
-    
+    if track_type == "lib":
+        level, is_star = userTrack.get_personal_track_info(
+            username, to_play_track.track_uuid)
+        to_play_track.level = level
+        to_play_track.is_star = is_star
+    elif track_type == "rec":
+        to_play_track.is_star = "0"
+    return to_play_track
 
 
 def get_next_playlist(username, lib_ratio, emotion_range):
     '''
-    Get next playlist first track, and update next tracks list
+    (# Depre)Get next playlist first track, and update next tracks list
     '''
     next_track = userTrack.get_next_playlist(username)
     refresh_msg = {

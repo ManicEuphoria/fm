@@ -56,7 +56,8 @@ def download_url(track, progress):
         else:
             track.mp3_url = None
             return
-    except (TypeError, KeyError):
+    except (TypeError, KeyError) as e:
+        print(e)
         track.mp3_url = None
         return
 
@@ -69,7 +70,8 @@ def download_url(track, progress):
         album_id = r.json()['songs'][0]['album']['id']
         artist_id = r.json()["songs"][0]['artists'][0]['id']
         duration = r.json()['songs'][0]['hMusic']['playTime'] / 1000
-    except (TypeError, KeyError):
+    except (TypeError, KeyError) as e:
+        print(e)
         track.mp3_url = None
         return
     en_id = encrypted_id(str(dfsid))
@@ -81,7 +83,7 @@ def download_url(track, progress):
 
 
 def fetch_tracks_urls(chosen_tracks):
-    workers_number = 30
+    workers_number = 100
     url_gevent = Worker(workers_number)
     boss = url_gevent.generate_boss(chosen_tracks)
     workers = url_gevent.generate_workers(download_url)

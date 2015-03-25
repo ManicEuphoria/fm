@@ -1,6 +1,9 @@
 import collections
 import uuid
+import time
+import random
 
+from constants import main
 from constants.main import MP3_FILE_PREFIX, WY_ARTIST_PREFIX
 from constants.main import WY_ALBUM_PREFIX, WY_SONG_PREFIX
 from sqlalchemy import Column, Integer, String
@@ -148,6 +151,67 @@ def store_user_tracks(username):
     for rec_track in rec_tracks:
         rec_user_uuids = redname.PERSONAL_REC_UUID + username
         fredis.r_cli.rpush(rec_user_uuids, rec_track.track_uuid)
+
+
+def get_user_uuids(username, track_type):
+    '''
+    Get user's all lib/rec tracks uuids
+    '''
+    if track_type == "lib":
+        user_uuids = redname.PERSONAL_LIB_UUID + username
+    elif track_type == "rec":
+        user_uuids = redname.PERSONAL_REC_UUID + username
+    return fredis.r_cli.lrange(user_uuids, 0, -1)
+
+
+def get_user_tracks_detail(track_uuids):
+    '''
+    Get user's tracks in detail like mp3 url from redis
+    Get the sample of the lib
+    '''
+    track_uuids = random.sample(track_uuids, main.SAMPLE_TRACKS_NUMBER)
+    db_session = get_session()
+    sample_tracks = db_session.query(TrackInfo)\
+        .filter(TrackInfo.track_uuid.in_(track_uuids)).all()
+    return sample_tracks
+
+
+def get_one_track_detail(track_uuid):
+    '''
+    Get one user's track in detail like mp3 url
+    '''
+    db_session = get_session()
+    one_track = db_session.query(TrackInfo)\
+        .filter(TrackInfo.track_uuid == track_uuid).first()
+    return one_track
+
+
+def delete_invalid_tracks(username):
+    '''
+    Delete all tracks without any mp3 info
+    and delete user track
+    '''
+    db_session = get_session()
+    invalid_tracks = db_session.query(TrackInfo)\
+        .filter(TrackInfo.mp3_url.is_(None)).all()
+    db_session.delete(invalid_tracks)
+
+    tracks_uuids = [track.track_uuid for track in invalid_tracks]
+    lib_tracks = db_session.query(UserTrack)\
+        .filter(UserTrack.username == username)\
+        .filter(UserTrack.track_uuid.in_(tracks_uuids)).all()
+    db_session.delete(lib_tracks)
+
+
+def get_personal_track_info(username, track_uuid):
+    '''
+    Get level and is_star about the user's track
+    '''
+    lib_user_track = redname.PERSONAL_LIB + username + ':%s' % (
+        str(track_uuid))
+    level = fredis.r_cli.hget(lib_user_track, 'level')
+    is_star = fredis.r_cli.hget(lib_user_track, 'is_star')
+    return (level, is_star)
 
 
 def store_pre_tracks(username, pre_tracks):

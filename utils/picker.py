@@ -3,6 +3,7 @@ from constants import main
 from constants.main import MAX_PAST_ARTISTS, LEVELS_ORDER, MAX_PAST_TRACKS
 from constants.main import MAX_PAST_EMOTION_ARTISTS, MAX_PAST_EMOTION_TRACKS
 from constants.main import EMOTION_ORDER
+from models import userTrack
 
 from utils import fredis, zeus
 
@@ -69,13 +70,12 @@ class EmotionPicker(object):
 
 
 class Picker(object):
-    def __init__(self, lib_list, rec_list, username, emotion_range):
-        self.lib_list = lib_list
-        self.rec_list = rec_list
+    def __init__(self, username, emotion_range):
         self.past_artists = FixedLengthList(MAX_PAST_ARTISTS, username,
                                             "artists")
         self.past_tracks = FixedLengthList(MAX_PAST_TRACKS, username,
                                            "tracks")
+        self.username = username
         self.emotion_range = emotion_range
         self.pick_pos = 0
 
@@ -88,15 +88,22 @@ class Picker(object):
         else:
             self.pick_pos += 1
 
-    def next_mix(self, track_number, lib_ratio):
+    def next_mix(self, track_number, lib_ratio, reverse_type):
         '''
         Pick one song either from libarary or recommendation
         Depends on the LIB_RATIO
         '''
         is_lib = main.IS_LIB[lib_ratio][track_number]
-        if is_lib:
+        if (reverse_type == "lib" or is_lib) and not reverse_type == "rec":
+            user_track_uuids = userTrack.get_user_uuids(self.username, 'lib')
+            self.lib_list = userTrack.get_user_tracks_detail(
+                user_track_uuids, main.SAMPLE_TRACKS_NUMBER)
             return self.next_lib(track_number)
-        else:
+        elif (reverse_type == "rec" or not is_lib) and \
+                not reverse_type == "lib":
+            user_track_uuids = userTrack.get_user_uuids(self.username, 'rec')
+            self.rec_list = userTrack.get_user_tracks_detail(
+                user_track_uuids, main.SAMPLE_TRACKS_NUMBER)
             return self.next_rec(track_number)
 
     def next_init_lib(self):
@@ -118,24 +125,24 @@ class Picker(object):
         emo_range = main.emotion_range_add(self.emotion_range,
                                            track_number)
         emotion_tracks = self.lib_list
+        emotion_tracks = [emotion_track for emotion_track in emotion_tracks
+                          if self._in_emo_range(emo_range,
+                                                emotion_track.emotion_value)]
         random.shuffle(emotion_tracks)
-        random_track = random.choice(emotion_tracks)
-        while 1:
-            random_track = random.choice(emotion_tracks)
+        for random_track in emotion_tracks:
             if not self.past_artists.exist(random_track.artist) and\
-                    not self.past_tracks.exist(random_track.track_uuid) and\
-                    self._in_emo_range(emo_range, random_track.emotion_value):
-                break
+                    not self.past_tracks.exist(random_track.track_uuid):
+                next_track = random_track
 
-        # If in the level which can not satisy both rules,pick one
-        # randomly from all tracks
-        if not emotion_tracks:
-            random_track = random.choice(emotion_tracks)
+        else:
+            # @todo(Re-choose the sample tracks from db)
+            print("Fix it ")
+            next_track = random.choice(emotion_tracks)
 
-        self.past_tracks.append(random_track.track_uuid)
-        self.past_artists.append(random_track.artist)
-        random_track.type = "lib"
-        return random_track
+        self.past_tracks.append(next_track.track_uuid)
+        self.past_artists.append(next_track.artist)
+        next_track.type = "lib"
+        return next_track
 
     def next_rec(self, track_number):
         '''
@@ -144,11 +151,17 @@ class Picker(object):
         emo_range = main.emotion_range_add(self.emotion_range,
                                            track_number)
         next_tracks = self.rec_list
-        while 1:
-            next_track = random.choice(next_tracks)
-            if not self.past_artists.exist(next_track.artist) and\
-                    self._in_emo_range(emo_range, next_track.emotion_value):
+        next_tracks = [next_track for next_track in next_tracks
+                       if self._in_emo_range(emo_range,
+                                             next_track.emotion_value)]
+        random.shuffle(next_tracks)
+        for rec_track in next_tracks:
+            if not self.past_artists.exist(rec_track.artist):
+                next_track = rec_track
                 break
+        else:
+            next_track = random.choice(next_tracks)
+
         self.past_artists.append(next_track.artist)
         next_track.type = "rec"
         return next_track
