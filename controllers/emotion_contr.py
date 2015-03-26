@@ -85,10 +85,9 @@ def calculate_tags(user_track, progress):
     '''
     Download music and calculate the tags emotion
     '''
-    if user_track.emotion_value:
-        return user_track
     user_tags = last_contr.get_top_tags(user_track)
     track_tags_list = _transform_to_tracktag(user_tags)
+    print(user_track.title)
     emotion_value = calculate_emotion(track_tags_list, axis="x")
     user_track.emotion_value = emotion_value
     return user_track
@@ -154,6 +153,7 @@ def calculate_emotion(track_tags_list, axis):
     emotion = max(emotion_result, key=emotion_result.get)
     emotion_result = (emotion, emotion_result[emotion])
     # This is a just rought version
+    print(emotion_result)
     emotion_value = _emotion_to_value(emotion_result)
     if not track_tags_list:
         emotion_value = -100
@@ -165,16 +165,23 @@ def _emotion_to_value(emotion_result):
     Transfrom from emotion and its value to total value
     '''
     emotion_value_dict = {
-        "low": 100,
-        'down': 200,
+        "low": 0,
+        'down': 100,
         "up": 200,
         "high": 300
     }
     emotion, temp_value = emotion_result
     if emotion in ['low', 'down']:
-        emotion_value = emotion_value_dict[emotion] - temp_value
+        if 50 <= temp_value <= 100:
+            temp_value = int((100 - temp_value) * 1.6)
+        else:
+            temp_value = int((50 - temp_value) * 0.8) + 80
     elif emotion in ['up', "high"]:
-        emotion_value = emotion_value_dict[emotion] + temp_value
+        if 50 <= temp_value <= 100:
+            temp_value = int(20 + (temp_value - 50) * 1.6)
+        else:
+            temp_value = int((temp_value - 25) * 0.8)
+    emotion_value = emotion_value_dict[emotion] + temp_value
     return emotion_value
 
 

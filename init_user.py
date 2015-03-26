@@ -127,6 +127,7 @@ def store_tracks_info(username):
     user_tracks = userTrack.choose_tracks_info(users_tracks)
     info.fetch_tracks_urls(user_tracks)
     userTrack.store_tracks_info(user_tracks)
+    userTrack.delete_invalid_tracks(username)
 
 
 def init_emotion(username):
@@ -135,13 +136,13 @@ def init_emotion(username):
     '''
     user_tracks = userTrack.choose_all_tracks(username)
     user_tracks = userTrack.choose_tracks_info(user_tracks)
-    emotion_gevent = geventWorker.Worker(50, 'add_element')
+    emotion_gevent = geventWorker.Worker(100, 'add_element')
     emotion_gevent.pack(user_tracks, emotion_contr.calculate_tags)
     lib_emotion_array = emotion_gevent.return_results()
 
     rec_tracks = userTrack.choose_rec_tracks(username)
     rec_tracks = userTrack.choose_tracks_info(rec_tracks)
-    rec_gevent = geventWorker.Worker(50, 'add_element')
+    rec_gevent = geventWorker.Worker(100, 'add_element')
     rec_gevent.pack(rec_tracks, emotion_contr.calculate_tags)
     rec_emotion_array = rec_gevent.return_results()
 
@@ -171,9 +172,13 @@ def init(username):
 
 
 if __name__ == '__main__':
-    ps = fredis.subscribe(redname.WAITING_USER_SET)
-    for message in ps.listen():
-        if message['type'] == 'message':
-            username = message['data']
-            last_user = last_contr.get_user(username)
-            init(username)
+    init_emotion('Patrickcai')
+    exit(0)
+    # ps = fredis.subscribe(redname.WAITING_USER_SET)
+    # for message in ps.listen():
+    #     if message['type'] == 'message':
+    #         username = message['data']
+    #         last_user = last_contr.get_user(username)
+    #         init(username)
+    last_user = last_contr.get_user("Patrickcai")
+    init("Patrickcai")

@@ -37,7 +37,7 @@ def add_rec_user(username):
     '''
     Add user who is going to init recommendation
     '''
-    fredis.r_cli.publish(redname.WAITING_REC_USER)
+    fredis.r_cli.publish(redname.WAITING_REC_USER, username)
 
 
 def add_emo_user(username):
@@ -116,4 +116,4 @@ def add_to_all_finished(username):
     '''
     ADD to the list if the user has init all(lib, rec, emotion, info)
     '''
-    fredis.r_cli.sadd(redname.IS_FINISHED_USER)
+    fredis.r_cli.sadd(redname.IS_FINISHED_USER, username)

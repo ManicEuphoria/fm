@@ -2,7 +2,7 @@ $(document).ready(function(){
 
     function nextrack(radio_type, do_background){
         $.get('next?radio_type=' + radio_type, function(data, status){
-            url = data['url'];
+            url = data['mp3_url'];
             title = data['title'];
             artist = data['artist'];
             $('meta.track-artist')[0]['content'] = artist;
@@ -100,7 +100,7 @@ $(document).ready(function(){
 
 
         $.get(query_url, function(data, status){
-            url = data['url'];
+            url = data['mp3_url'];
             title = data['title'];
             artist = data['artist'];
             $('meta.track-artist')[0]['content'] = artist;

@@ -22,7 +22,7 @@ MAX_PAST_TRACKS = 50
 MAX_PAST_EMOTION_ARTISTS = 2
 MAX_PAST_EMOTION_TRACKS = 20
 
-SAMPLE_TRACKS_NUMBER = 250
+SAMPLE_TRACKS_NUMBER = 600
 
 IS_LIB = {
     20: [1, 0, 0, 0, 0],
@@ -121,6 +121,7 @@ def emotion_range_add(emotion_range, track_number):
     }
     add_emotion = track_emotion[track_number]
     added_start_value, added_end_value = add_emotion
-    emotion_range[0] += added_start_value
-    emotion_range[1] += added_end_value
-    return emotion_range
+    emo_range = []
+    emo_range.append(emotion_range[0] + added_start_value)
+    emo_range.append(emotion_range[0] + added_end_value)
+    return emo_range

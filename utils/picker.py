@@ -96,14 +96,12 @@ class Picker(object):
         is_lib = main.IS_LIB[lib_ratio][track_number]
         if (reverse_type == "lib" or is_lib) and not reverse_type == "rec":
             user_track_uuids = userTrack.get_user_uuids(self.username, 'lib')
-            self.lib_list = userTrack.get_user_tracks_detail(
-                user_track_uuids, main.SAMPLE_TRACKS_NUMBER)
+            self.lib_list = userTrack.get_user_tracks_detail(user_track_uuids)
             return self.next_lib(track_number)
         elif (reverse_type == "rec" or not is_lib) and \
                 not reverse_type == "lib":
             user_track_uuids = userTrack.get_user_uuids(self.username, 'rec')
-            self.rec_list = userTrack.get_user_tracks_detail(
-                user_track_uuids, main.SAMPLE_TRACKS_NUMBER)
+            self.rec_list = userTrack.get_user_tracks_detail(user_track_uuids)
             return self.next_rec(track_number)
 
     def next_init_lib(self):
@@ -122,17 +120,33 @@ class Picker(object):
         '''
         Choose next track from the user's own library
         '''
+        
         emo_range = main.emotion_range_add(self.emotion_range,
                                            track_number)
-        emotion_tracks = self.lib_list
-        emotion_tracks = [emotion_track for emotion_track in emotion_tracks
-                          if self._in_emo_range(emo_range,
-                                                emotion_track.emotion_value)]
-        random.shuffle(emotion_tracks)
+
+        while 1:
+            emotion_tracks = self.lib_list
+            emotion_tracks = [emotion_track for emotion_track in emotion_tracks
+                              if self._in_emo_range(
+                                  emo_range, emotion_track.emotion_value)]
+            random.shuffle(emotion_tracks)
+            if not emotion_tracks:
+                user_track_uuids = userTrack.get_user_uuids(self.username,
+                                                            'lib')
+                emotion_tracks = userTrack.get_user_tracks_detail(
+                    user_track_uuids)
+            else:
+                break
+
         for random_track in emotion_tracks:
+            print(random_track.track_uuid)
+            print(random_track.artist)
             if not self.past_artists.exist(random_track.artist) and\
                     not self.past_tracks.exist(random_track.track_uuid):
                 next_track = random_track
+                break
+            else:
+                continue
 
         else:
             # @todo(Re-choose the sample tracks from db)

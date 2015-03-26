@@ -4,6 +4,7 @@
 import time
 import tornado
 import refresh
+import json
 
 from tornado import gen
 from views.base import BaseHandler
@@ -35,11 +36,14 @@ class MainHandler(BaseHandler):
                 track = track_contr.get_next_song(
                     username, 'normal', lib_ratio=lib_ratio,
                     track_number=0, emotion_range=emotion_range)
-                self.set_secure_cookie('emotion_range', emotion_range)
-                self.set_secure_cookie('track_number', 0)
-                self.set_secure_cookie('normal', radio_type)
-                self.set_secure_cookie("lib_ratio", lib_ratio)
-                self.set_secure_cookie('last_type', track.type)
+                self.set_secure_cookie('emotion_range',
+                                       json.dumps(emotion_range))
+                self.set_secure_cookie('track_number', str(0))
+                self.set_secure_cookie('normal', str(radio_type))
+                self.set_secure_cookie("lib_ratio", str(lib_ratio))
+                self.set_secure_cookie('last_type', str(track.type))
+                self.set_secure_cookie('emotion_range',
+                                       json.dumps(emotion_range))
             last_contr.update_playing(username, track)
             self.render("radio.html", track=track)
         else:
@@ -82,27 +86,53 @@ class NextHandler(BaseHandler):
         radio_type = self.get_secure_cookie('radio_type')
         last_track = self.get_argument("last_track", None)
         lib_ratio = self.get_secure_cookie("lib_ratio")
+        if not lib_ratio:
+            lib_ratio = main.LIB_RATIO
+        else:
+            lib_ratio = int(lib_ratio)
         emotion_range = self.get_secure_cookie("emotion_range")
+        if not emotion_range:
+            emotion_range = [100, 125]
+        else:
+            emotion_range = json.loads(emotion_range)
         track_number = self.get_secure_cookie("track_number")
-        last_type = self.get_secure_cookie("last_type")
+        if not track_number:
+            track_number = 0
+        else:
+            track_number = int(track_number)
 
+        last_type = self.get_secure_cookie("last_type")
         if radio_type == "pre" and not userM.is_all_finished(username):
             track = track_contr.get_next_song(username, "pre")
-        elif radio_type == "normal":
+        else:
             lib_ratio, emotion_range, track_number, reverse_type \
                 = track_contr.next_status(
                     lib_ratio, emotion_range, track_number, last_track,
                     last_type)
-            track = track_contr.get_next_song(username, radio_type,
+            track = track_contr.get_next_song(username, "normal",
                                               lib_ratio=lib_ratio,
                                               emotion_range=emotion_range,
                                               track_number=track_number,
                                               reverse_type=reverse_type)
+            print('type')
+            print(track.type)
+            print("lib_ratio")
+            print(lib_ratio)
+            print('track_number')
+            print(track_number)
+            print('emotio')
+            print(emotion_range)
+            print(track.emotion_value)
+            self.set_secure_cookie('radio_type', 'normal')
+            self.set_secure_cookie('lib_ratio', str(lib_ratio))
+            self.set_secure_cookie('track_number', str(track_number))
+            self.set_secure_cookie('emotion_range', json.dumps(emotion_range))
+            self.set_secure_cookie('last_type', str(track.type))
         last_contr.update_playing(username, track)
         if last_track:
             last_contr.scrobble(username, last_track)
         background_url = backgroundM.get_random()
-        track_items = {"url": track.mp3_url,
+        track_items = {"mp3_url": track.mp3_url,
                        "title": "'" + track.title + "'",
                        'artist': track.artist,
                        'album_url': track.album_url,
@@ -151,7 +181,8 @@ class StatusHandler(BaseHandler):
         if not username:
             self.write({'status': "ok"})
 
-        if track_contr.is_ready(username):
+        if userTrack.is_pre_tracks_exist(username) or\
+                userM.is_all_finished(username):
             self.write({'status': "ok"})
         else:
             self.write({'status': 'fail'})

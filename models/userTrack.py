@@ -173,6 +173,8 @@ def get_user_tracks_detail(track_uuids):
     db_session = get_session()
     sample_tracks = db_session.query(TrackInfo)\
         .filter(TrackInfo.track_uuid.in_(track_uuids)).all()
+    sample_tracks = [_extra_info(sample_track)
+                     for sample_track in sample_tracks]
     return sample_tracks
 
 
@@ -183,6 +185,20 @@ def get_one_track_detail(track_uuid):
     db_session = get_session()
     one_track = db_session.query(TrackInfo)\
         .filter(TrackInfo.track_uuid == track_uuid).first()
+    print(one_track)
+    one_track = _extra_info(one_track)
+    return one_track
+
+
+def _extra_info(one_track):
+    '''
+    Add the prefix into the info about the track
+    like the mp3 url
+    '''
+    one_track.mp3_url = MP3_FILE_PREFIX + one_track.mp3_url + '.mp3'
+    one_track.artist_id = WY_ARTIST_PREFIX + one_track.artist_id
+    one_track.album_id = WY_ALBUM_PREFIX + one_track.album_id
+    one_track.song_id = WY_SONG_PREFIX + one_track.song_id
     return one_track
 
 
@@ -194,13 +210,25 @@ def delete_invalid_tracks(username):
     db_session = get_session()
     invalid_tracks = db_session.query(TrackInfo)\
         .filter(TrackInfo.mp3_url.is_(None)).all()
-    db_session.delete(invalid_tracks)
+    print(len(invalid_tracks))
+    for invalid_track in invalid_tracks:
+        db_session.delete(invalid_track)
+    db_session.commit()
 
     tracks_uuids = [track.track_uuid for track in invalid_tracks]
     lib_tracks = db_session.query(UserTrack)\
         .filter(UserTrack.username == username)\
         .filter(UserTrack.track_uuid.in_(tracks_uuids)).all()
-    db_session.delete(lib_tracks)
+    for lib_track in lib_tracks:
+        db_session.delete(lib_track)
+    db_session.commit()
+
+    rec_tracks = db_session.query(UserTrack)\
+        .filter(UserTrack.username == username)\
+        .filter(UserTrack.track_uuid.in_(tracks_uuids)).all()
+    for rec_track in rec_tracks:
+        db_session.delete(rec_track)
+    db_session.commit()
 
 
 def get_personal_track_info(username, track_uuid):
