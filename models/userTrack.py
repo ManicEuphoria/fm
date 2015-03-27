@@ -32,6 +32,8 @@ class TrackInfo(Base):
     duration = Column(String(length=100))
     song_id = Column(String(length=100))
     emotion_value = Column(Integer)
+    tag = Column(String(length=100))
+    tag_value = Column(Integer)
 
 
 class UserTrack(Base):
@@ -73,17 +75,25 @@ def add_tracks_info(final_tracks_list):
     db_session.commit()
 
 
-def add_tracks_emotion(tracks_list):
+def add_tracks_emotion(tracks_list_mix):
     '''
     Add the tracks' emotion to db
     '''
     db_session = get_session()
-    tracks_info = dict([(track.track_uuid, track.emotion_value)
-                        for track in tracks_list])
+    tracks_info = dict([(track[0].track_uuid, [track[0].emotion_value,
+                                               track[1]])
+                        for track in tracks_list_mix])
+
     emotion_tracks = db_session.query(TrackInfo)\
         .filter(TrackInfo.track_uuid.in_(tracks_info.keys())).all()
     for emotion_track in emotion_tracks:
-        emotion_track.emotion_value = tracks_info[emotion_track.track_uuid]
+        emotion_track.emotion_value = tracks_info[emotion_track.track_uuid][0]
+        if tracks_info[emotion_track.track_uuid][1]:
+            emotion_track.tag = tracks_info[emotion_track.track_uuid][1][0]
+            emotion_track.tag_value = tracks_info[emotion_track.track_uuid][1][1]
+        else:
+            emotion_track.tag = None
+            emotion_track.tag_value = None
     db_session.commit()
 
 
@@ -164,17 +174,22 @@ def get_user_uuids(username, track_type):
     return fredis.r_cli.lrange(user_uuids, 0, -1)
 
 
-def get_user_tracks_detail(track_uuids):
+def get_user_tracks_detail(track_uuids, emotion_range=None, tag_value=None):
     '''
     Get user's tracks in detail like mp3 url from redis
     Get the sample of the lib
     '''
     track_uuids = random.sample(track_uuids, main.SAMPLE_TRACKS_NUMBER)
     db_session = get_session()
-    sample_tracks = db_session.query(TrackInfo)\
-        .filter(TrackInfo.track_uuid.in_(track_uuids)).all()
+    if emotion_range:
+        emo_start, emo_end = emotion_range
+        sample_tracks = db_session.query(TrackInfo)\
+            .filter(TrackInfo.track_uuid.in_(track_uuids))\
+            .filter(TrackInfo.emotion_value >= emo_start)\
+            .filter(TrackInfo.emotion_value <= emo_end).all()
     sample_tracks = [_extra_info(sample_track)
                      for sample_track in sample_tracks]
+    print(len(sample_tracks))
     return sample_tracks
 
 
@@ -439,3 +454,12 @@ def remain_tracks(username):
     '''
     to_play_tracks = "toplay:%s:list" % (username)
     return int(fredis.r_cli.llen(to_play_tracks))
+
+
+def test():
+    db_session = get_session()
+    for emotion in main.NOT_EMOTION_TAGS:
+        tags = db_session.query(TrackInfo)\
+            .filter(TrackInfo.tag == emotion).all()
+        print(emotion)
+        print(len(tags))

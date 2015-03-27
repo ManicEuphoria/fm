@@ -35,6 +35,8 @@ IS_LIB = {
 EMOTION_RANGE = [[start_value * 25, start_value * 25 + 25]
                  for start_value in xrange(0, 15)]
 
+EMOTION_AREA = EMOTION_RANGE
+
 EMOTION_ADDED_VALUE = 15
 
 EMOTION_ORDER = [
@@ -90,6 +92,16 @@ VALID_TAGS = ["ambient", "blues", "classic rock", "country", "dance",
               "Mellow", "sad", "romantic", "saxophone", 'Lo-fi', 'summer',
               'epic', 'calm', "electronic", "britpop", "jazz",
               "lush"]
+
+NOT_EMOTION_TAGS = ["blues", "classic rock", "country", "dance",
+                    "easy listening", "emo", "folk", "gothic", "hip-hop",
+                    "minimal", "new wave", "noise", "piano", "post-punk",
+                    "post-rock", "psychedelic", "punk", "reggae", "Rnb",
+                    "shoegaze", "singer-songwriter", "trip-hop",
+                    "Synthpop", "chillout", "melancholy",
+                    "Mellow", "sad", 'Lo-fi',
+                    'epic', 'calm', "electronic", "britpop", "jazz",
+                    ]
 
 TAGS_VALUE = ['1', '2']
 

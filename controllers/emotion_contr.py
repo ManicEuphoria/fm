@@ -1,5 +1,6 @@
 import collections
 import cPickle
+import random
 
 from decimal import Decimal
 from constants import main
@@ -87,10 +88,41 @@ def calculate_tags(user_track, progress):
     '''
     user_tags = last_contr.get_top_tags(user_track)
     track_tags_list = _transform_to_tracktag(user_tags)
-    print(user_track.title)
+    top_tags = _calculate_top_tags(track_tags_list)
     emotion_value = calculate_emotion(track_tags_list, axis="x")
     user_track.emotion_value = emotion_value
-    return user_track
+    return [user_track, top_tags]
+
+
+def _calculate_top_tags(tracks_tags_list):
+    '''
+    Calculate the top tags in the list
+    track_tags_list:
+        [(u'jazz', 2), (u'blues', 2), (u'piano', 1), (u'beautiful', 1)]
+    return value :
+        [u'jazz', 2]
+    '''
+    two_tags = []
+    one_tags = []
+    for tag_list in tracks_tags_list:
+        if tag_list[1] == 2:
+            two_tags.append(tag_list)
+        elif tag_list[1] == 1:
+            one_tags.append(tag_list)
+    if two_tags:
+        for tag_list in two_tags:
+            if tag_list[0] in main.NOT_EMOTION_TAGS:
+                return [tag_list[0], 2]
+        else:
+            tag_list = random.choice(two_tags)
+            return [tag_list[0], 2]
+    elif one_tags:
+        for tag_list in one_tags:
+            if tag_list[0] in main.NOT_EMOTION_TAGS:
+                return [tag_list[0], 1]
+        else:
+            tag_list = random.choice(one_tags)
+            return [tag_list[0], 1]
 
 
 def _transform_to_tracktag(user_tags):
@@ -124,6 +156,7 @@ def calculate_emotion(track_tags_list, axis):
     For example 311 represnt high
 
     '''
+    print(track_tags_list)
     if axis == "x":
         axis_type = x_axis_type
         axis_percentage = x_axis_percentage
