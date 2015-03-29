@@ -88,7 +88,8 @@ class Picker(object):
         else:
             self.pick_pos += 1
 
-    def next_mix(self, track_number, lib_ratio, reverse_type):
+    def next_mix(self, track_number, lib_ratio, reverse_type, last_tag,
+                 tag_value, last_emotion_value):
         '''
         Pick one song either from libarary or recommendation
         Depends on the LIB_RATIO
@@ -101,10 +102,8 @@ class Picker(object):
             return self.next_lib(track_number)
         elif (reverse_type == "rec" or not is_lib) and \
                 not reverse_type == "lib":
-            user_track_uuids = userTrack.get_user_uuids(self.username, 'rec')
-            self.rec_list = userTrack.get_user_tracks_detail(
-                user_track_uuids, emotion_range=self.emotion_range)
-            return self.next_rec(track_number)
+            return self.next_rec(track_number, last_tag, tag_value,
+                                 last_emotion_value)
 
     def next_init_lib(self):
         random_track = zeus.choice(self.lib_list)
@@ -118,11 +117,19 @@ class Picker(object):
         random_track.type = "lib"
         return random_track
 
-    def next_lib(self, track_number):
+    def next_lib(self, track_number, last_tag, tag_value, last_emotion_value):
         '''
         Choose next track from the user's own library
         '''
-        emotion_tracks = self.lib_list
+        user_track_uuids = userTrack.get_user_uuids(self.username, 'lib')
+        emotion_tracks = userTrack.get_user_tracks_detail(
+            user_track_uuids, emotion_range=self.emotion_range,
+            last_tag=last_tag, tag_value=tag_value)
+        random.shuffle(emotion_tracks)
+        if tag_value:
+            emotion_tracks = self._ordered_tracks(emotion_tracks, tag_value,
+                                                  last_emotion_value)
+
         for random_track in emotion_tracks:
             print(random_track.track_uuid)
             print(random_track.artist)
@@ -141,12 +148,19 @@ class Picker(object):
         next_track.type = "lib"
         return next_track
 
-    def next_rec(self, track_number):
+    def next_rec(self, track_number, last_tag, tag_value, last_emotion_value):
         '''
         Choose next track from the user's recommendation
         '''
-        next_tracks = self.rec_list
+        user_track_uuids = userTrack.get_user_uuids(self.username, 'rec')
+        next_tracks = userTrack.get_user_tracks_detail(
+            user_track_uuids, emotion_range=self.emotion_range,
+            last_tag=last_tag, tag_value=tag_value)
         random.shuffle(next_tracks)
+        if tag_value:
+            next_tracks = self._ordered_tracks(next_tracks, tag_value,
+                                               last_emotion_value)
+
         for rec_track in next_tracks:
             if not self.past_artists.exist(rec_track.artist):
                 next_track = rec_track
@@ -157,6 +171,17 @@ class Picker(object):
         self.past_artists.append(next_track.artist)
         next_track.type = "rec"
         return next_track
+
+    def _ordered_tracks(self, next_tracks, tag_value, last_emotion_value):
+        '''
+        Order the tracks with the two factors (tag_value and emotion_value)
+        '''
+        for next_track in next_tracks:
+            dif_value = abs(next_track.tag_value - tag_value) * 100 + \
+                abs(next_track.emotion_value - last_emotion_value)
+            next_track.dif_value = dif_value
+        next_tracks = sorted(next_tracks, key=lambda x: x.dif_value)
+        return next_tracks
 
     def _in_emo_range(self, emo_range, emotion_value):
         '''

@@ -174,22 +174,28 @@ def get_user_uuids(username, track_type):
     return fredis.r_cli.lrange(user_uuids, 0, -1)
 
 
-def get_user_tracks_detail(track_uuids, emotion_range=None, tag_value=None):
+def get_user_tracks_detail(track_uuids, emotion_range=None, last_tag=None,
+                           tag_value=None):
     '''
     Get user's tracks in detail like mp3 url from redis
     Get the sample of the lib
     '''
     track_uuids = random.sample(track_uuids, main.SAMPLE_TRACKS_NUMBER)
     db_session = get_session()
-    if emotion_range:
-        emo_start, emo_end = emotion_range
+    emo_start, emo_end = emotion_range
+    if not tag_value:
         sample_tracks = db_session.query(TrackInfo)\
             .filter(TrackInfo.track_uuid.in_(track_uuids))\
             .filter(TrackInfo.emotion_value >= emo_start)\
             .filter(TrackInfo.emotion_value <= emo_end).all()
+    else:
+        sample_tracks = db_session.query(TrackInfo)\
+            .filter(TrackInfo.track_uuid.in_(track_uuids))\
+            .filter(TrackInfo.emotion_value >= emo_start)\
+            .filter(TrackInfo.emotion_value <= emo_end)\
+            .filter(TrackInfo.tag == last_tag).all()
     sample_tracks = [_extra_info(sample_track)
                      for sample_track in sample_tracks]
-    print(len(sample_tracks))
     return sample_tracks
 
 

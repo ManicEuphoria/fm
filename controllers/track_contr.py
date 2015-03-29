@@ -95,7 +95,8 @@ def store_urls(username, chosen_tracks, erase=False, radio_type="normal",
 
 def get_next_song(username, radio_type,
                   lib_ratio=None, emotion_range=None, track_number=None,
-                  reverse_type=None):
+                  reverse_type=None, last_tag=None, tag_value=None,
+                  last_emotion_value=None):
     '''
     Get the url and extra info about the next song
     If there are more than one song ,return the list
@@ -111,7 +112,8 @@ def get_next_song(username, radio_type,
     elif radio_type == "normal":
         track_picker = picker.Picker(username, emotion_range)
         to_play_track = track_picker.next_mix(track_number, lib_ratio,
-                                              reverse_type)
+                                              reverse_type, last_tag, tag_value,
+                                              last_emotion_value)
         to_play_track = get_track_info(username, to_play_track,
                                        to_play_track.type)
         return to_play_track
@@ -132,11 +134,12 @@ def next_status(lib_ratio, emotion_range, track_number, last_track, last_type):
                             last_type == "lib")):
         # Switch the emotion
         track_number = 0
-        emotion_range = zeus.choice(main.EMOTION_RANGE)
+        emotion_range = zeus.next_jump_emotion(emotion_range)
         if emotion_range in main.EMOTION_AREA:
             emo_start = zeus.choice(range(emotion_range[0],
                                           emotion_range[1] - 4))
             emotion_range = [emo_start, emo_start + 11]
+
     elif not last_track and (track_number in not_switch_track_number or
                              (track_number in switch_track_number and
                               last_type == "rec")):
@@ -156,6 +159,7 @@ def next_status(lib_ratio, emotion_range, track_number, last_track, last_type):
     elif last_track and track_number == 4:
         # The last track in the track list
         track_number = 0
+        emotion_range = zeus.next_list_emotion(emotion_range)
         emotion_range = [emotion + 50 for emotion in emotion_range]
     elif last_track:
         # The next track in original track list

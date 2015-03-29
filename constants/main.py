@@ -35,7 +35,14 @@ IS_LIB = {
 EMOTION_RANGE = [[start_value * 25, start_value * 25 + 25]
                  for start_value in xrange(0, 15)]
 
-EMOTION_AREA = EMOTION_RANGE
+
+EMOTION_AREA = [[0, 25], [100, 125], [275, 300], [375, 400]]
+NOT_EMOTION_AREA = [[25, 100], [125, 200], [200, 275], [300, 375]]
+EMOTION_RANGE = EMOTION_AREA + NOT_EMOTION_AREA
+
+
+EMOTION_SEQUENCE = ['DUMMY', [375, 400], [300, 375], [275, 300], [200, 275],
+                    [125, 200], [100, 125], [25, 100], [0, 25]]
 
 EMOTION_ADDED_VALUE = 15
 

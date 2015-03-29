@@ -32,7 +32,7 @@ class MainHandler(BaseHandler):
             else:
                 radio_type = "normal"
                 lib_ratio = main.LIB_RATIO
-                emotion_range = zeus.choice(main.EMOTION_RANGE)
+                emotion_range = zeus.choice(main.EMOTION_AREA)
                 track = track_contr.get_next_song(
                     username, 'normal', lib_ratio=lib_ratio,
                     track_number=0, emotion_range=emotion_range)
@@ -102,6 +102,9 @@ class NextHandler(BaseHandler):
             track_number = int(track_number)
 
         last_type = self.get_secure_cookie("last_type")
+        last_tag = self.get_secure_cookie('last_tag')
+        last_emotion_value = self.get_secure_cookie("last_emotion_value")
+        tag_value = self.get_secure_cookie('tag_value')
         if radio_type == "pre" and not userM.is_all_finished(username):
             track = track_contr.get_next_song(username, "pre")
         else:
@@ -113,7 +116,10 @@ class NextHandler(BaseHandler):
                                               lib_ratio=lib_ratio,
                                               emotion_range=emotion_range,
                                               track_number=track_number,
-                                              reverse_type=reverse_type)
+                                              reverse_type=reverse_type,
+                                              last_tag=last_tag,
+                                              tag_value=tag_value,
+                                              last_emotion_value=last_emotion_value)
             print('type')
             print(track.type)
             print("lib_ratio")
