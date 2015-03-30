@@ -51,18 +51,6 @@ def get_loved_tracks(task_page, progress, user):
     return tracks
 
 
-def extra_info(track, progress, username):
-    network = get_network()
-    # user = get_user(username)
-    # lib = pylast.Library(user, network)
-    # lib.get_tracks(track.artist)
-    album = pylast.Track(artist='Death Cab for Cutie',
-                         title='You Are a Tourist',
-                         network=network).get_album()
-    # content = lib.get_tracks("Dustin O'Halloran")
-    print(album)
-
-
 def get_all_top_tracks(task_number, progress, username):
     user = get_user(username)
     result = user.get_top_tracks(limit=200, page=task_number)

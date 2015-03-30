@@ -1,6 +1,17 @@
 $(document).ready(function(){
-
     function nextrack(radio_type, do_background){
+        function audioFadeout(){
+            if (audio.volume > 0.1){
+                var originalVolume = audio.volume;
+                audio.volume = originalVolume - 0.1;
+            }
+            else{
+                clearInterval(fdId);
+            }
+        }
+
+        var fdId = setInterval(audioFadeout, 120);
+
         $.get('next?radio_type=' + radio_type, function(data, status){
             url = data['mp3_url'];
             title = data['title'];
@@ -31,16 +42,22 @@ $(document).ready(function(){
             if (do_background == "True"){
                 $('.right-column').css({'background-image':"url('" + data['background_url'] + "')", 'background-size':'cover'});
             }
-
-
             audio.load();
             audio.play();
+
+
+
                 $('.paused').show();
                 $('.play').hide();
                 $('title').text(title + '-' + artist);
+
             // change the loading bar
-            bar_tween.restart();
-            bar_tween = new TweenLite.to(bar, data['duration'], {width:'100%',  ease:Linear.easeNone});
+                bar_tween.restart();
+                bar_tween.pause();
+                bar_tween.kill();
+                bar_tween = new TweenLite.to(bar, data['duration'], {width:'100%',  ease:Linear.easeNone});
+                bar_tween.pause();
+
 
 
 
@@ -70,7 +87,8 @@ $(document).ready(function(){
         bar_tween.pause();
     };
 
-    audio.onplay = function(){
+    audio.onplaying = function(){
+        audio.volume = 0.8;
         bar_tween.play();
     };
 
@@ -131,7 +149,10 @@ $(document).ready(function(){
 
             // change the loading bar
             bar_tween.restart();
+            bar_tween.pause();
+            bar_tween.kill();
             bar_tween = new TweenLite.to(bar, data['duration'], {width:'100%',  ease:Linear.easeNone});
+            bar_tween.pause();
 
 
             //change the background
@@ -142,6 +163,7 @@ $(document).ready(function(){
 
         });
     }, false);
+
 
   
 

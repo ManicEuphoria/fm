@@ -90,7 +90,8 @@ def add_tracks_emotion(tracks_list_mix):
         emotion_track.emotion_value = tracks_info[emotion_track.track_uuid][0]
         if tracks_info[emotion_track.track_uuid][1]:
             emotion_track.tag = tracks_info[emotion_track.track_uuid][1][0]
-            emotion_track.tag_value = tracks_info[emotion_track.track_uuid][1][1]
+            tag_value = tracks_info[emotion_track.track_uuid][1][1]
+            emotion_track.tag_value = tag_value
         else:
             emotion_track.tag = None
             emotion_track.tag_value = None
@@ -184,18 +185,20 @@ def get_user_tracks_detail(track_uuids, emotion_range=None, last_tag=None,
     db_session = get_session()
     emo_start, emo_end = emotion_range
     if not tag_value:
+        # For the track number is 0, select one track randomly
         sample_tracks = db_session.query(TrackInfo)\
             .filter(TrackInfo.track_uuid.in_(track_uuids))\
             .filter(TrackInfo.emotion_value >= emo_start)\
             .filter(TrackInfo.emotion_value <= emo_end).all()
     else:
+        # For the track number is > 0, emotion range is way larger
         sample_tracks = db_session.query(TrackInfo)\
             .filter(TrackInfo.track_uuid.in_(track_uuids))\
-            .filter(TrackInfo.emotion_value >= emo_start)\
-            .filter(TrackInfo.emotion_value <= emo_end)\
             .filter(TrackInfo.tag == last_tag).all()
+
     sample_tracks = [_extra_info(sample_track)
                      for sample_track in sample_tracks]
+    print('The length of tracks %s ' % (len(sample_tracks)))
     return sample_tracks
 
 

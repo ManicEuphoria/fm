@@ -44,6 +44,8 @@ class MainHandler(BaseHandler):
                 self.set_secure_cookie('last_type', str(track.type))
                 self.set_secure_cookie('emotion_range',
                                        json.dumps(emotion_range))
+                self.set_secure_cookie("last_emotion_value",
+                                       str(track.emotion_value))
             last_contr.update_playing(username, track)
             self.render("radio.html", track=track)
         else:
@@ -104,14 +106,20 @@ class NextHandler(BaseHandler):
         last_type = self.get_secure_cookie("last_type")
         last_tag = self.get_secure_cookie('last_tag')
         last_emotion_value = self.get_secure_cookie("last_emotion_value")
+        if last_emotion_value:
+            last_emotion_value = int(last_emotion_value)
         tag_value = self.get_secure_cookie('tag_value')
+        if tag_value:
+            tag_value = int(tag_value)
         if radio_type == "pre" and not userM.is_all_finished(username):
             track = track_contr.get_next_song(username, "pre")
         else:
-            lib_ratio, emotion_range, track_number, reverse_type \
+            reverse_type = None
+            lib_ratio, emotion_range, track_number, reverse_type, last_tag, tag_value\
                 = track_contr.next_status(
                     lib_ratio, emotion_range, track_number, last_track,
-                    last_type)
+                    last_type, last_tag, tag_value)
+            print('reverse_emotion %s' % (emotion_range))
             track = track_contr.get_next_song(username, "normal",
                                               lib_ratio=lib_ratio,
                                               emotion_range=emotion_range,
@@ -120,15 +128,12 @@ class NextHandler(BaseHandler):
                                               last_tag=last_tag,
                                               tag_value=tag_value,
                                               last_emotion_value=last_emotion_value)
-            print('type')
-            print(track.type)
-            print("lib_ratio")
-            print(lib_ratio)
-            print('track_number')
-            print(track_number)
-            print('emotio')
-            print(emotion_range)
-            print(track.emotion_value)
+            print('track_number is %s' % (track_number))
+            print('emotio range %s' % (emotion_range))
+            self.set_secure_cookie("last_tag", str(track.tag))
+            self.set_secure_cookie("tag_value", str(track.tag_value))
+            self.set_secure_cookie("last_emotion_value",
+                                   str(track.emotion_value))
             self.set_secure_cookie('radio_type', 'normal')
             self.set_secure_cookie('lib_ratio', str(lib_ratio))
             self.set_secure_cookie('track_number', str(track_number))

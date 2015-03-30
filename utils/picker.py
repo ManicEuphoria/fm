@@ -91,15 +91,13 @@ class Picker(object):
     def next_mix(self, track_number, lib_ratio, reverse_type, last_tag,
                  tag_value, last_emotion_value):
         '''
-        Pick one song either from libarary or recommendation
+        Pick one song either from library or recommendation
         Depends on the LIB_RATIO
         '''
         is_lib = main.IS_LIB[lib_ratio][track_number]
         if (reverse_type == "lib" or is_lib) and not reverse_type == "rec":
-            user_track_uuids = userTrack.get_user_uuids(self.username, 'lib')
-            self.lib_list = userTrack.get_user_tracks_detail(
-                user_track_uuids, emotion_range=self.emotion_range)
-            return self.next_lib(track_number)
+            return self.next_lib(track_number, last_tag, tag_value,
+                                 last_emotion_value)
         elif (reverse_type == "rec" or not is_lib) and \
                 not reverse_type == "lib":
             return self.next_rec(track_number, last_tag, tag_value,
@@ -126,13 +124,12 @@ class Picker(object):
             user_track_uuids, emotion_range=self.emotion_range,
             last_tag=last_tag, tag_value=tag_value)
         random.shuffle(emotion_tracks)
-        if tag_value:
-            emotion_tracks = self._ordered_tracks(emotion_tracks, tag_value,
-                                                  last_emotion_value)
+        if track_number > 0:
+            # For instance the next track in not emotion area
+            emotion_tracks = self._ordered_tracks(
+                emotion_tracks, last_emotion_value, tag_value)
 
         for random_track in emotion_tracks:
-            print(random_track.track_uuid)
-            print(random_track.artist)
             if not self.past_artists.exist(random_track.artist) and\
                     not self.past_tracks.exist(random_track.track_uuid):
                 next_track = random_track
@@ -153,26 +150,25 @@ class Picker(object):
         Choose next track from the user's recommendation
         '''
         user_track_uuids = userTrack.get_user_uuids(self.username, 'rec')
-        next_tracks = userTrack.get_user_tracks_detail(
+        emotion_tracks = userTrack.get_user_tracks_detail(
             user_track_uuids, emotion_range=self.emotion_range,
             last_tag=last_tag, tag_value=tag_value)
-        random.shuffle(next_tracks)
-        if tag_value:
-            next_tracks = self._ordered_tracks(next_tracks, tag_value,
-                                               last_emotion_value)
+        random.shuffle(emotion_tracks)
+        emotion_tracks = self._ordered_tracks(
+            emotion_tracks, last_emotion_value, tag_value=tag_value)
 
-        for rec_track in next_tracks:
+        for rec_track in emotion_tracks:
             if not self.past_artists.exist(rec_track.artist):
                 next_track = rec_track
                 break
         else:
-            next_track = random.choice(next_tracks)
+            next_track = random.choice(emotion_tracks)
 
         self.past_artists.append(next_track.artist)
         next_track.type = "rec"
         return next_track
 
-    def _ordered_tracks(self, next_tracks, tag_value, last_emotion_value):
+    def _ordered_tracks(self, next_tracks, last_emotion_value, tag_value=None):
         '''
         Order the tracks with the two factors (tag_value and emotion_value)
         '''

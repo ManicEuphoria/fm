@@ -112,14 +112,21 @@ def get_next_song(username, radio_type,
     elif radio_type == "normal":
         track_picker = picker.Picker(username, emotion_range)
         to_play_track = track_picker.next_mix(track_number, lib_ratio,
-                                              reverse_type, last_tag, tag_value,
-                                              last_emotion_value)
+                                              reverse_type, last_tag,
+                                              tag_value, last_emotion_value)
         to_play_track = get_track_info(username, to_play_track,
                                        to_play_track.type)
+        print(to_play_track.title)
+        print(to_play_track.artist)
+        print('emotion_value is %s' % (to_play_track.emotion_value))
+        print('tag is %s value %s ' % (to_play_track.tag,
+                                       to_play_track.tag_value))
+        print("track type is %s" % (to_play_track.type))
         return to_play_track
 
 
-def next_status(lib_ratio, emotion_range, track_number, last_track, last_type):
+def next_status(lib_ratio, emotion_range, track_number, last_track, last_type,
+                last_tag, tag_value):
     '''
     Get next track's status according to the last track
     1. Switch the track or not
@@ -127,18 +134,15 @@ def next_status(lib_ratio, emotion_range, track_number, last_track, last_type):
     # @todo (the lib ratio should be adjusted slightly)
 
     reverse_type = None
-    switch_track_number = [3, 4, ]
-    not_switch_track_number = [1, 2]
+    switch_track_number = [2, 3, 4, ]
+    not_switch_track_number = [1]
     if not last_track and (track_number == 0 or
                            (track_number in switch_track_number and
                             last_type == "lib")):
         # Switch the emotion
         track_number = 0
         emotion_range = zeus.next_jump_emotion(emotion_range)
-        if emotion_range in main.EMOTION_AREA:
-            emo_start = zeus.choice(range(emotion_range[0],
-                                          emotion_range[1] - 4))
-            emotion_range = [emo_start, emo_start + 11]
+        last_tag = tag_value = None
 
     elif not last_track and (track_number in not_switch_track_number or
                              (track_number in switch_track_number and
@@ -160,12 +164,11 @@ def next_status(lib_ratio, emotion_range, track_number, last_track, last_type):
         # The last track in the track list
         track_number = 0
         emotion_range = zeus.next_list_emotion(emotion_range)
-        emotion_range = [emotion + 50 for emotion in emotion_range]
     elif last_track:
         # The next track in original track list
         track_number += 1
-    print(emotion_range)
-    return [lib_ratio, emotion_range, track_number, reverse_type]
+    return [lib_ratio, emotion_range, track_number, reverse_type,
+            last_tag, tag_value]
 
 
 def get_track_info(username, to_play_track, track_type):
