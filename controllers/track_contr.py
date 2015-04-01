@@ -134,25 +134,23 @@ def next_status(lib_ratio, emotion_range, track_number, last_track, last_type,
     # @todo (the lib ratio should be adjusted slightly)
 
     reverse_type = None
-    switch_track_number = [2, 3, 4, ]
+    switch_track_number = [2, 3, ]
     not_switch_track_number = [1]
     if not last_track and (track_number == 0 or
                            (track_number in switch_track_number and
-                            last_type == "lib")):
+                            last_type == "lib") or
+                           track_number == 4):
         # Switch the emotion
         track_number = 0
         emotion_range = zeus.next_jump_emotion(emotion_range)
-        last_tag = tag_value = None
+        tag_value = None
 
     elif not last_track and (track_number in not_switch_track_number or
                              (track_number in switch_track_number and
                               last_type == "rec")):
         # Not switch the emotion , next track in the track list but
         # change the lib ratio
-        if track_number == 4:
-            track_number = 0
-        else:
-            track_number += 1
+        track_number += 1
         if last_type == "lib" and not lib_ratio == 20:
             lib_ratio -= 20
             reverse_type = 'rec'
@@ -164,6 +162,7 @@ def next_status(lib_ratio, emotion_range, track_number, last_track, last_type,
         # The last track in the track list
         track_number = 0
         emotion_range = zeus.next_list_emotion(emotion_range)
+        tag_value = None
     elif last_track:
         # The next track in original track list
         track_number += 1

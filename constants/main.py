@@ -22,7 +22,7 @@ MAX_PAST_TRACKS = 50
 MAX_PAST_EMOTION_ARTISTS = 2
 MAX_PAST_EMOTION_TRACKS = 20
 
-SAMPLE_TRACKS_NUMBER = 500
+SAMPLE_TRACKS_NUMBER = 800
 
 IS_LIB = {
     20: [1, 0, 0, 0, 0],
@@ -39,8 +39,12 @@ EMOTION_RANGE = [[start_value * 25, start_value * 25 + 25]
 EMOTION_AREA = [[0, 100], [100, 200], [200, 300], [300, 400]]
 
 
-EMOTION_SEQUENCE = ['DUMMY', [375, 400], [300, 375], [275, 300], [200, 275],
-                    [125, 200], [100, 125], [25, 100], [0, 25]]
+EMOTION_MIN_DIFF = {
+    1: 0,
+    2: 5,
+    3: 10,
+    4: 15,
+}
 
 EMOTION_ADDED_VALUE = 15
 

@@ -59,8 +59,8 @@ def next_jump_emotion(emotion_range):
     emo_start = emotion_range[0]
     emotion_jump_table = {
         0: [200, 300],
-        100: [100, 200],
-        200: [300, 400],
+        100: [300, 400],
+        200: [100, 200],
         300: [0, 100],
     }
     return emotion_jump_table[emo_start]
@@ -72,10 +72,9 @@ def next_list_emotion(emotion_range):
     '''
     emo_start = emotion_range[0]
     emotion_jump_table = {
-        0: [[100, 200], [200, 300]],
+        0: [[100, 200]],
         100: [[0, 100], [200, 300]],
         200: [[100, 200], [300, 400]],
-        300: [[100, 200], [200, 300]],
+        300: [[200, 300]],
     }
-    random_index = choice(range(2))
-    return emotion_jump_table[emo_start][random_index]
+    return choice(emotion_jump_table[emo_start])

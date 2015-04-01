@@ -189,7 +189,8 @@ def get_user_tracks_detail(track_uuids, emotion_range=None, last_tag=None,
         sample_tracks = db_session.query(TrackInfo)\
             .filter(TrackInfo.track_uuid.in_(track_uuids))\
             .filter(TrackInfo.emotion_value >= emo_start)\
-            .filter(TrackInfo.emotion_value <= emo_end).all()
+            .filter(TrackInfo.emotion_value <= emo_end)\
+            .filter(TrackInfo.tag != last_tag).all()
     else:
         # For the track number is > 0, emotion range is way larger
         sample_tracks = db_session.query(TrackInfo)\

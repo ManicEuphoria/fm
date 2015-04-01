@@ -127,7 +127,8 @@ class Picker(object):
         if track_number > 0:
             # For instance the next track in not emotion area
             emotion_tracks = self._ordered_tracks(
-                emotion_tracks, last_emotion_value, tag_value)
+                emotion_tracks, last_emotion_value, tag_value,
+                track_number)
 
         for random_track in emotion_tracks:
             if not self.past_artists.exist(random_track.artist) and\
@@ -155,7 +156,8 @@ class Picker(object):
             last_tag=last_tag, tag_value=tag_value)
         random.shuffle(emotion_tracks)
         emotion_tracks = self._ordered_tracks(
-            emotion_tracks, last_emotion_value, tag_value=tag_value)
+            emotion_tracks, last_emotion_value, tag_value,
+            track_number)
 
         for rec_track in emotion_tracks:
             if not self.past_artists.exist(rec_track.artist):
@@ -168,7 +170,8 @@ class Picker(object):
         next_track.type = "rec"
         return next_track
 
-    def _ordered_tracks(self, next_tracks, last_emotion_value, tag_value=None):
+    def _ordered_tracks(self, next_tracks, last_emotion_value, tag_value,
+                        track_number):
         '''
         Order the tracks with the two factors (tag_value and emotion_value)
         '''
@@ -177,7 +180,13 @@ class Picker(object):
                 abs(next_track.emotion_value - last_emotion_value)
             next_track.dif_value = dif_value
         next_tracks = sorted(next_tracks, key=lambda x: x.dif_value)
-        return next_tracks
+        chosen_tracks = [next_track for next_track in next_tracks
+                         if next_track.dif_value >=
+                         main.EMOTION_MIN_DIFF[track_number]]
+        if not chosen_tracks:
+            print("Exception No min diff")
+            chosen_tracks = next_tracks
+        return chosen_tracks
 
     def _in_emo_range(self, emo_range, emotion_value):
         '''
