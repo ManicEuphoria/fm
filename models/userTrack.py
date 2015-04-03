@@ -176,7 +176,7 @@ def get_user_uuids(username, track_type):
 
 
 def get_user_tracks_detail(track_uuids, emotion_range=None, last_tag=None,
-                           tag_value=None):
+                           tag_value=None, track_number=0):
     '''
     Get user's tracks in detail like mp3 url from redis
     Get the sample of the lib
@@ -184,13 +184,14 @@ def get_user_tracks_detail(track_uuids, emotion_range=None, last_tag=None,
     track_uuids = random.sample(track_uuids, main.SAMPLE_TRACKS_NUMBER)
     db_session = get_session()
     emo_start, emo_end = emotion_range
-    if not tag_value:
+    if not tag_value or track_number == 3:
         # For the track number is 0, select one track randomly
         sample_tracks = db_session.query(TrackInfo)\
             .filter(TrackInfo.track_uuid.in_(track_uuids))\
             .filter(TrackInfo.emotion_value >= emo_start)\
             .filter(TrackInfo.emotion_value <= emo_end)\
             .filter(TrackInfo.tag != last_tag).all()
+        print('3333')
     else:
         # For the track number is > 0, emotion range is way larger
         sample_tracks = db_session.query(TrackInfo)\

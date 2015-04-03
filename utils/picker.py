@@ -122,7 +122,7 @@ class Picker(object):
         user_track_uuids = userTrack.get_user_uuids(self.username, 'lib')
         emotion_tracks = userTrack.get_user_tracks_detail(
             user_track_uuids, emotion_range=self.emotion_range,
-            last_tag=last_tag, tag_value=tag_value)
+            last_tag=last_tag, tag_value=tag_value, track_number=track_number)
         random.shuffle(emotion_tracks)
         if track_number > 0:
             # For instance the next track in not emotion area
@@ -153,7 +153,7 @@ class Picker(object):
         user_track_uuids = userTrack.get_user_uuids(self.username, 'rec')
         emotion_tracks = userTrack.get_user_tracks_detail(
             user_track_uuids, emotion_range=self.emotion_range,
-            last_tag=last_tag, tag_value=tag_value)
+            last_tag=last_tag, tag_value=tag_value, track_number=track_number)
         random.shuffle(emotion_tracks)
         emotion_tracks = self._ordered_tracks(
             emotion_tracks, last_emotion_value, tag_value,
