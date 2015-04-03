@@ -199,7 +199,6 @@ def get_user_tracks_detail(track_uuids, emotion_range=None, last_tag=None,
 
     sample_tracks = [_extra_info(sample_track)
                      for sample_track in sample_tracks]
-    print('The length of tracks %s ' % (len(sample_tracks)))
     return sample_tracks
 
 
@@ -305,6 +304,16 @@ def choose_tracks_info(all_tracks):
     tracks_uuids = [track.track_uuid for track in all_tracks]
     tracks_info = db_session.query(TrackInfo)\
         .filter(TrackInfo.track_uuid.in_(tracks_uuids)).all()
+    return tracks_info
+
+
+def choose_no_emotion_tracks():
+    '''
+    Choose all tracks without any emotion value(-100)
+    '''
+    db_session = get_session()
+    tracks_info = db_session.query(TrackInfo)\
+        .filter(TrackInfo.emotion_value == -100).all()
     return tracks_info
 
 

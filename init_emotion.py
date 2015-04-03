@@ -25,7 +25,22 @@ def init_emotion(username):
     userTrack.add_tracks_emotion(lib_emotion_array + rec_emotion_array)
 
 
+def refresh_no_emotion_tracks():
+    '''
+    Retry to get the emotion value of the tracks withou the emotion value
+    in the db
+    '''
+    no_emotion_tracks = userTrack.choose_no_emotion_tracks()
+    emo_gevent = geventWorker.Worker(65, 'add_element')
+    emo_gevent.pack(no_emotion_tracks, emotion_contr.calculate_tags)
+    emo_array = emo_gevent.return_results()
+
+    userTrack.add_tracks_emotion(emo_array)
+
+
 if __name__ == "__main__":
+    refresh_no_emotion_tracks()
+    exit()
     ps = fredis.subscribe(redname.WAITING_EMO_USER)
     for message in ps.listen():
         if message['type'] == "message":

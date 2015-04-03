@@ -151,12 +151,12 @@ def next_status(lib_ratio, emotion_range, track_number, last_track, last_type,
         # Not switch the emotion , next track in the track list but
         # change the lib ratio
         track_number += 1
-        if last_type == "lib" and not lib_ratio == 20:
-            lib_ratio -= 20
-            reverse_type = 'rec'
-        elif last_type == "rec" and not lib_ratio == 100:
-            lib_ratio += 20
-            reverse_type = "lib"
+        # if last_type == "lib" and not lib_ratio == 20:
+        #     lib_ratio -= 20
+        #     reverse_type = 'rec'
+        # elif last_type == "rec" and not lib_ratio == 100:
+        #     lib_ratio += 20
+        #     reverse_type = "lib"
 
     elif last_track and track_number == 4:
         # The last track in the track list
