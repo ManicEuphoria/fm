@@ -36,7 +36,7 @@ class MainHandler(BaseHandler):
                 track = track_contr.get_next_song(
                     username, 'normal', lib_ratio=lib_ratio,
                     track_number=0, emotion_range=emotion_range)
-                self.set_secure_cookie('last_tag', str(track.tag))
+                self.set_secure_cookie('last_tag', str(track.last_tag))
 
                 self.set_secure_cookie('emotion_range',
                                        json.dumps(emotion_range))
@@ -48,7 +48,7 @@ class MainHandler(BaseHandler):
                                        json.dumps(emotion_range))
                 self.set_secure_cookie("last_emotion_value",
                                        str(track.emotion_value))
-                self.set_secure_cookie("tag_value", str(track.tag_value))
+                self.set_secure_cookie("tag_value", str(track.last_tag_value))
 
             last_contr.update_playing(username, track)
             self.render("radio.html", track=track)
@@ -134,8 +134,8 @@ class NextHandler(BaseHandler):
             print('track_number is %s' % (track_number))
             print('emotio range %s' % (emotion_range))
             print("lib_ratio %s" % (lib_ratio))
-            self.set_secure_cookie("last_tag", str(track.tag))
-            self.set_secure_cookie("tag_value", str(track.tag_value))
+            self.set_secure_cookie("last_tag", str(track.last_tag))
+            self.set_secure_cookie("tag_value", str(track.last_tag_value))
             self.set_secure_cookie("last_emotion_value",
                                    str(track.emotion_value))
             self.set_secure_cookie('radio_type', 'normal')

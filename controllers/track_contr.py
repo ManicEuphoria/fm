@@ -119,8 +119,8 @@ def get_next_song(username, radio_type,
         print(to_play_track.title)
         print(to_play_track.artist)
         print('emotion_value is %s' % (to_play_track.emotion_value))
-        print('tag is %s value %s ' % (to_play_track.tag,
-                                       to_play_track.tag_value))
+        print('tag is %s value %s ' % (to_play_track.last_tag,
+                                       to_play_track.last_tag_value))
         print("track type is %s" % (to_play_track.type))
         return to_play_track
 

@@ -2,7 +2,7 @@ import random
 from constants import main
 from constants.main import MAX_PAST_ARTISTS, LEVELS_ORDER, MAX_PAST_TRACKS
 from constants.main import MAX_PAST_EMOTION_ARTISTS, MAX_PAST_EMOTION_TRACKS
-from constants.main import EMOTION_ORDER
+from constants.main import EMOTION_ORDER, MAX_PAST_TAGS
 from models import userTrack
 
 from utils import fredis, zeus
@@ -75,6 +75,8 @@ class Picker(object):
                                             "artists")
         self.past_tracks = FixedLengthList(MAX_PAST_TRACKS, username,
                                            "tracks")
+        self.past_tags = FixedLengthList(MAX_PAST_TAGS, username,
+                                         'tags')
         self.username = username
         self.emotion_range = emotion_range
         self.pick_pos = 0
@@ -124,8 +126,9 @@ class Picker(object):
             user_track_uuids, emotion_range=self.emotion_range,
             last_tag=last_tag, tag_value=tag_value, track_number=track_number)
         random.shuffle(emotion_tracks)
-        if track_number > 0:
-            # For instance the next track in not emotion area
+        emotion_tracks, is_no_tag = self._tag_filter(emotion_tracks, last_tag)
+        if track_number > 0 and not is_no_tag:
+            # For instance pick the track according to the last tag and emotion
             emotion_tracks = self._ordered_tracks(
                 emotion_tracks, last_emotion_value, tag_value,
                 track_number)
@@ -134,6 +137,7 @@ class Picker(object):
             if not self.past_artists.exist(random_track.artist) and\
                     not self.past_tracks.exist(random_track.track_uuid):
                 next_track = random_track
+                self._set_next_tag(next_track, is_no_tag)
                 break
 
         else:
@@ -155,13 +159,16 @@ class Picker(object):
             user_track_uuids, emotion_range=self.emotion_range,
             last_tag=last_tag, tag_value=tag_value, track_number=track_number)
         random.shuffle(emotion_tracks)
-        emotion_tracks = self._ordered_tracks(
-            emotion_tracks, last_emotion_value, tag_value,
-            track_number)
+        emotion_tracks, is_no_tag = self._tag_filter(emotion_tracks, last_tag)
+        if last_tag != "random" and not is_no_tag:
+            emotion_tracks = self._ordered_tracks(
+                emotion_tracks, last_emotion_value, tag_value,
+                track_number)
 
         for rec_track in emotion_tracks:
             if not self.past_artists.exist(rec_track.artist):
                 next_track = rec_track
+                self._set_next_tag(next_track, is_no_tag)
                 break
         else:
             next_track = random.choice(emotion_tracks)
@@ -176,13 +183,14 @@ class Picker(object):
         Order the tracks with the two factors (tag_value and emotion_value)
         '''
         for next_track in next_tracks:
-            dif_value = abs(next_track.tag_value - tag_value) * 100 + \
+            dif_value = abs(next_track.tag_value - tag_value) + \
                 abs(next_track.emotion_value - last_emotion_value)
             next_track.dif_value = dif_value
         next_tracks = sorted(next_tracks, key=lambda x: x.dif_value)
         chosen_tracks = [next_track for next_track in next_tracks
                          if next_track.dif_value >=
                          main.EMOTION_MIN_DIFF[track_number]]
+        print("The waiting list number %s" % (len(chosen_tracks)))
         if not chosen_tracks:
             print("Exception No min diff")
             chosen_tracks = next_tracks
@@ -196,3 +204,44 @@ class Picker(object):
             return True
         else:
             return False
+
+    def _tag_filter(self, emotion_tracks, last_tag):
+        '''
+        Filter those tracks whose tags not meet the standard
+        '''
+        if last_tag == "random":
+            return emotion_tracks
+        filtered_emotion_tracks = []
+        for emotion_track in emotion_tracks:
+            for i in range(1, 5):
+                tag = getattr(emotion_track, 'tag%s' % i)
+                if tag == last_tag:
+                    emotion_track.tag = tag
+                    emotion_track.tag_value = getattr(emotion_track,
+                                                      'tag_value%s' % i)
+                    filtered_emotion_tracks.append(emotion_track)
+                    break
+        if not filtered_emotion_tracks:
+            print("Tags all not meet the standard")
+            is_no_tag = True
+            return emotion_tracks, is_no_tag
+        is_no_tag = False
+        return filtered_emotion_tracks, is_no_tag
+
+    def _set_next_tag(self, next_track, is_no_tag):
+        '''
+        Set next track's tag
+        '''
+        if not is_no_tag:
+            self.past_tags.append(next_track.tag)
+        for i in range(1, 5):
+            tag = getattr(next_track, 'tag%s' % i)
+            tag_value = getattr(next_track, 'tag_value%s' % i)
+            if not self.past_tags.exist(tag):
+                print('next tag %s' % (tag))
+                next_track.last_tag = tag
+                next_track.last_tag_value = tag_value
+                break
+        else:
+            next_track.last_tag = 'random'
+            next_track.last_tag_value = 100

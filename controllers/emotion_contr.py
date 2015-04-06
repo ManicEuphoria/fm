@@ -87,8 +87,9 @@ def calculate_tags(user_track, progress):
     Download music and calculate the tags emotion
     '''
     user_tags = last_contr.get_top_tags(user_track)
-    track_tags_list = _transform_to_tracktag(user_tags)
-    top_tags = _calculate_top_tags(track_tags_list)
+    track_tags_list, orig_track_tags = _transform_to_tracktag(user_tags)
+    # top_tags = _calculate_top_tags(orig_track_tags)
+    top_tags = orig_track_tags[: 4]
     emotion_value = calculate_emotion(track_tags_list, axis="x")
     user_track.emotion_value = emotion_value
     return [user_track, top_tags]
@@ -98,10 +99,11 @@ def _calculate_top_tags(tracks_tags_list):
     '''
     Calculate the top tags in the list
     track_tags_list:
-        [(u'jazz', 2), (u'blues', 2), (u'piano', 1), (u'beautiful', 1)]
+        [(u'jazz', 21), (u'blues', 60), (u'piano', 10), (u'beautiful', 1)]
     return value :
-        [u'jazz', 2]
+        [u'jazz', 21]
     '''
+
     two_tags = []
     one_tags = []
     for tag_list in tracks_tags_list:
@@ -130,8 +132,10 @@ def _transform_to_tracktag(user_tags):
     Transform from list of Topitem(see f8533c37)
     to a list fo tag-value tuple
     such as [("rock", 1), ("pop", 2)]
+    the origi_track_tags = [('rock', 70), ("pop", 60)]
     '''
     tracktag_list = []
+    orig_track_tags = []
     for user_tag in user_tags:
         if user_tag.item.name in main.VALID_TAGS:
             if int(user_tag.weight) < main.MIDDLE_VALUE:
@@ -142,7 +146,9 @@ def _transform_to_tracktag(user_tags):
                 break
             track_tag = (user_tag.item.name, value)
             tracktag_list.append(track_tag)
-    return tracktag_list
+            orig_track_tag = (user_tag.item.name, user_tag.weight)
+            orig_track_tags.append(orig_track_tag)
+    return tracktag_list, orig_track_tags
 
 
 def calculate_emotion(track_tags_list, axis):
