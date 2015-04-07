@@ -102,6 +102,23 @@ def add_tracks_emotion(tracks_list_mix):
     db_session.commit()
 
 
+def add_artist_tracks_emotion(user_tracks):
+    db_session = get_session()
+    tracks_info = dict([(track.track_uuid, [track.emotion_value,
+                                            track.top_tags])
+                        for track in user_tracks])
+    emotion_tracks = db_session.query(TrackInfo)\
+        .filter(TrackInfo.track_uuid.in_(tracks_info.keys())).all()
+    for emotion_track in emotion_tracks:
+        emotion_track.emotion_value = tracks_info[emotion_track.track_uuid][0]
+        if tracks_info[emotion_track.track_uuid][1]:
+            tags = tracks_info[emotion_track.track_uuid][1]
+            for tag_track, number in zip(tags, range(1, 5)):
+                setattr(emotion_track, 'tag%s' % number, tag_track[0])
+                setattr(emotion_track, "tag_value%s" % number, tag_track[1])
+    db_session.commit()
+
+
 def add_rec_tracks(username, rec_tracks):
     '''
     Add the recommendation tracks into database
@@ -315,7 +332,7 @@ def choose_no_emotion_tracks():
     '''
     db_session = get_session()
     tracks_info = db_session.query(TrackInfo)\
-        .filter(TrackInfo.emotion_value == -100).all()
+        .filter(TrackInfo.emotion_value >= 1000).all()
     return tracks_info
 
 

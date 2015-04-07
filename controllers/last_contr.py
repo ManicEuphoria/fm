@@ -34,6 +34,15 @@ def get_top_tracks(task_page, progress, user):
     return tracks
 
 
+def get_artist_top_tags(track_artist):
+    '''
+    Get one artist's top tags
+    '''
+    network = get_network()
+    artist = pylast.Artist(track_artist, network)
+    return artist.get_top_tags()
+
+
 def get_recent_tracks(task_page, progress, user):
     '''
     Get all top tracks in recent one year

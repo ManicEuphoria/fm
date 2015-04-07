@@ -113,7 +113,7 @@ class NextHandler(BaseHandler):
         if last_emotion_value:
             last_emotion_value = int(last_emotion_value)
         tag_value = self.get_secure_cookie('tag_value')
-        if tag_value:
+        if tag_value and tag_value != "None":
             tag_value = int(tag_value)
         if radio_type == "pre" and not userM.is_all_finished(username):
             track = track_contr.get_next_song(username, "pre")

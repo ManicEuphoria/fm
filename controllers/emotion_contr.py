@@ -95,6 +95,18 @@ def calculate_tags(user_track, progress):
     return [user_track, top_tags]
 
 
+def calculate_artist_tags(artist_track, progress):
+    artist, artist_tracks = artist_track
+    artist_tags = last_contr.get_artist_top_tags(artist)
+    artist_tags_list, orig_artist_tags = _transform_to_tracktag(artist_tags)
+    top_tags = orig_artist_tags[: 4]
+    emotion_value = calculate_emotion(artist_tags_list, axis="x")
+    for track in artist_tracks:
+        track.top_tags = top_tags
+        track.emotion_value = emotion_value
+    return artist_tracks
+
+
 def _calculate_top_tags(tracks_tags_list):
     '''
     Calculate the top tags in the list

@@ -25,6 +25,20 @@ def init_emotion(username):
     userTrack.add_tracks_emotion(lib_emotion_array + rec_emotion_array)
 
 
+def init_artist_emotion():
+    artist_tracks = userTrack.choose_no_emotion_tracks()
+    artists_dict = {}
+    for artist_track in artist_tracks:
+        artist = artist_track.artist
+        artists_dict.setdefault(artist, [])
+        artists_dict[artist].append(artist_track)
+    emo_gevent = geventWorker.Worker(65, "extend_list")
+    emo_gevent.pack(artists_dict.items(), emotion_contr.calculate_artist_tags)
+    emo_array = emo_gevent.return_results()
+
+    userTrack.add_artist_tracks_emotion(emo_array)
+
+
 def refresh_no_emotion_tracks():
     '''
     Retry to get the emotion value of the tracks withou the emotion value
@@ -39,7 +53,7 @@ def refresh_no_emotion_tracks():
 
 
 if __name__ == "__main__":
-    refresh_no_emotion_tracks()
+    init_artist_emotion()
     exit()
     ps = fredis.subscribe(redname.WAITING_EMO_USER)
     for message in ps.listen():
