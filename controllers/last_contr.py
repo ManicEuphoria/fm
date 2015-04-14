@@ -3,6 +3,7 @@ import time
 from constants.main import API_KEY, API_SECRET
 from models import userM
 from utils import pylast
+from constants import main
 
 
 def get_network():
@@ -24,6 +25,27 @@ def get_user(username, session_key=None):
         network.session_key = session_key
         user = network.get_authenticated_user()
     return user
+
+
+def get_user_top_artists(username):
+    '''
+    Get one user's top artists
+    '''
+    network = get_network()
+    top_artists = pylast.User(username, network).get_top_artists(
+        limit=main.USER_TOP_ARTISTS_NUMBER)
+    top_artists = [artist.item for artist in top_artists]
+    return top_artists
+
+
+# @todo(merge get_artist_top_tracks)
+def get_artists_top_tracks(artist, progress):
+    '''
+    Get all top tracks by the artist
+    Artist is the instance of the class Artist in pylast
+    '''
+    top_tracks = artist.get_top_tracks(limit=40)
+    return top_tracks
 
 
 def get_top_tracks(task_page, progress, user):
@@ -142,6 +164,10 @@ def get_similar_tracks(user_track, progress):
     network = get_network()
     start_track = pylast.Track(user_track.artist, user_track.title, network)
     tracks = start_track.get_similar(limit=20)
+    for track in tracks:
+        track.source_type = 0
+        # @todo(Is it suitable if only the title is the same?)
+        track.source = user_track.title
     return tracks
 
 

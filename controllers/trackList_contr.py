@@ -56,6 +56,23 @@ class TrackList(object):
         top_tracks = self._rate_track(top_tracks)
         return top_tracks
 
+    def usertop_to_temp(self, all_top_tracks):
+        '''
+        Transform the Topitem into instance the class TempTrack
+        filter those track whose have not enouth listeners
+        filter those tracks users have already listened
+        '''
+        self.tracks_list = [TempTrack(track.item.title, track.item.artist,
+                                      self.ratio)
+                            for track in self.tracks_list
+                            if track.weight >= 1000]
+        for temp_track in self.tracks_list:
+            temp_track.track_uuid = str(uuid.uuid4())[0: 8]
+            temp_track.source_type = 3
+            temp_track.source = temp_track.artist
+        final_tracks = self.filter_listened(all_top_tracks)
+        return final_tracks
+
     def sim_to_temp(self, all_top_tracks):
         '''
         Transform the similar tracks into the instance of class TempTrack
@@ -116,6 +133,8 @@ class TrackList(object):
                           if track.weight >= MIN_ARTIST_PLAYCOUNT]
         for track in rec_art_tracks:
             track.track_uuid = str(uuid.uuid4())[0: 8]
+            # @todo(Add the source)
+            track.source_type = 2
         return rec_art_tracks
 
     def _merge_neighbours_tracks(self, all_users_tracks):

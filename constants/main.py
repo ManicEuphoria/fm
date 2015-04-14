@@ -74,6 +74,8 @@ LEVELS_ORDER = [4, 3, 2, 4, 3, 2, 1]
 STORED_TRACKS_NUMBER = 5
 STORED_EMOTION_NUMBER = 15
 
+USER_TOP_ARTISTS_NUMBER = 200
+
 SEARCH_URL = 'http://music.163.com/api/search/get'
 API_HEADERS = {"Referer": "http://music.163.com"}
 API_COOKIE = {"appver": '2.0.2'}
