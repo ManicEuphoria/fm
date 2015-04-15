@@ -135,6 +135,7 @@ class TrackList(object):
             track.track_uuid = str(uuid.uuid4())[0: 8]
             # @todo(Add the source)
             track.source_type = 2
+            track.source = None
         return rec_art_tracks
 
     def _merge_neighbours_tracks(self, all_users_tracks):

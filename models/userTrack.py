@@ -60,6 +60,9 @@ class RecTrack(Base):
     user_track_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(length=100))
     track_uuid = Column(String(length=100))
+    # Source type 1 -> similar tracks 2 -> rec artists 3 -> fam artists
+    source_type = Column(Integer)
+    source = Column(String(length=100))
 
 
 def add_tracks_info(final_tracks_list):
@@ -127,7 +130,10 @@ def add_rec_tracks(username, rec_tracks):
     db_session = get_session()
     for rec_track in rec_tracks:
         rec_track = RecTrack(username=username,
-                             track_uuid=rec_track.track_uuid)
+                             track_uuid=rec_track.track_uuid,
+                             source_type=rec_track.source_type,
+                             source=rec_track.source
+                             )
         db_session.add(rec_track)
     db_session.commit()
 

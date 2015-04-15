@@ -125,18 +125,18 @@ def get_own_library(username):
 
 def get_recommendation(username):
     all_top_tracks = get_top_tracks(username)
-    # rec_artists = last_contr.get_rec_artists(username)
-    # rec_artists_tracks = get_rec_artists_tracks(rec_artists)
+    rec_artists = last_contr.get_rec_artists(username)
+    rec_artists_tracks = get_rec_artists_tracks(rec_artists)
 
-    # user_top_tracks = track_contr.get_user_top_tracks(username)
-    # rec_similar_tracks = get_rec_similar_tracks(user_top_tracks,
-    #                                             all_top_tracks)
+    user_top_tracks = track_contr.get_user_top_tracks(username)
+    rec_similar_tracks = get_rec_similar_tracks(user_top_tracks,
+                                                all_top_tracks)
 
     lib_artists = last_contr.get_user_top_artists(username)
     user_top_artists_tracks = get_user_top_artists_tracks(lib_artists,
                                                           all_top_tracks)
-    # rec_tracks = rec_artists_tracks + rec_similar_tracks
-    rec_tracks = user_top_artists_tracks
+    rec_tracks = rec_artists_tracks + rec_similar_tracks + \
+        user_top_artists_tracks
     trackList_contr.rec_to_db(username, rec_tracks)
 
 
