@@ -10,13 +10,14 @@ from utils.log import visitlog
 
 
 class TempTrack(object):
-    def __init__(self, title, artist, ratio):
+    def __init__(self, title, artist, ratio, source=None):
         self.title = title
         self.artist = artist
         self.ratio = ratio
         self.track_uuid = None
         self.track_id = None
         self.rate = None
+        self.source = source
 
     def __repr__(self):
         return "Track id %s,track title %s, rate %s, ratio %s artist %s" % (
@@ -79,9 +80,10 @@ class TrackList(object):
         and merge them
         '''
         temp_tracks = [TempTrack(track.item.title, track.item.artist,
-                                 self.ratio)
+                                 self.ratio, track.source)
                        for track in self.tracks_list]
         for temp_track in temp_tracks:
+            temp_track.source_type = 1
             temp_track.track_uuid = str(uuid.uuid4())[0: 8]
         have_tracks = {}
         for temp_track in temp_tracks:

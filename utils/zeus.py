@@ -1,6 +1,7 @@
 import os
 import base64
 import random
+import re
 
 from constants import main
 from constants.main import BASE_DIR
@@ -26,7 +27,7 @@ def divide_level(num, all_number):
     return level
 
 
-def is_similar(a_txt, b_txt):
+def is_similar(a_txt, b_txt, is_tight=False, is_title=False):
     '''
     Detect the similarity between two text
     For purpose of not mistake for two same track
@@ -41,7 +42,25 @@ def is_similar(a_txt, b_txt):
     for a_word in a_list:
         if a_word in b_list:
             count += 1
+    if is_tight and is_title:
+        if not set(b_list) & main.TITLE_BANNED and \
+                set(a_list) & main.TITLE_BANNED:
+            return False
     return True if count >= 1 else False
+
+
+def is_album_legal(album):
+    '''
+    Tell whether the album contains the illegal tokens like 'live'
+    or itunes session
+    '''
+    album_upper = album.upper()
+    for token in main.ALBUM_BANNED:
+        result = re.search(r'%s', album_upper)
+        if result:
+            return False
+    else:
+        return True
 
 
 def choice(items_list):

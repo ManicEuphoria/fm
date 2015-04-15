@@ -179,11 +179,12 @@ def init_pre(username):
     Put them into redis
     '''
     pre_tracks = userTrack.choose_all_tracks(username)
-    pre_tracks = random.sample(pre_tracks, main.PRE_TRACKS_NUMBER)
+    # pre_tracks = random.sample(pre_tracks, main.PRE_TRACKS_NUMBER)
+    pre_tracks = userTrack.choose_tracks_info(pre_tracks)
     info.fetch_tracks_urls(pre_tracks)
     track_contr.filter_no_tracks(pre_tracks)
     userTrack.store_tracks_info(pre_tracks)
-    userTrack.store_pre_tracks(username, pre_tracks)
+    # userTrack.store_pre_tracks(username, pre_tracks)
 
 
 def init(username):

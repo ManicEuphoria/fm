@@ -5,6 +5,7 @@ from utils.geventWorker import Worker
 from constants.main import SEARCH_URL, API_HEADERS, API_COOKIE
 from constants.main import get_dfsid_url
 from utils.zeus import is_similar
+from utils import zeus
 
 
 def encrypted_id(id):
@@ -47,15 +48,29 @@ def download_url(track, progress):
         for song in songs:
             title = song['name']
             artist = song['artists'][0]['name']
+            album = song['album']['name']
+            is_album_legal = zeus.is_album_legal(album)
             is_artist_similar = is_similar(artist, track.artist)
-            is_title_similar = is_similar(title, track.title)
-            if is_title_similar and is_artist_similar:
+            is_title_similar = is_similar(title, track.title,
+                                          is_tight=True, is_title=True)
+            if is_title_similar and is_artist_similar and is_album_legal:
                 song_id = song['id']
                 track.song_id = song_id
+                print('yes')
                 break
         else:
-            track.mp3_url = None
-            return
+            for song in songs:
+                title = song['name']
+                artist = song['artists'][0]['name']
+                is_artist_similar = is_similar(artist, track.artist)
+                is_title_similar = is_similar(title, track.title)
+                if is_title_similar and is_artist_similar:
+                    song_id = song['id']
+                    track.song_id = song_id
+                    break
+            else:
+                track.mp3_url = None
+                return
     except (TypeError, KeyError) as e:
         print(e)
         track.mp3_url = None

@@ -165,7 +165,6 @@ def get_similar_tracks(user_track, progress):
     start_track = pylast.Track(user_track.artist, user_track.title, network)
     tracks = start_track.get_similar(limit=20)
     for track in tracks:
-        track.source_type = 1
         # @todo(Is it suitable if only the title is the same?)
         track.source = user_track.title
     return tracks
