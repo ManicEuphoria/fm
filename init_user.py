@@ -179,7 +179,7 @@ def init_pre(username):
     Put them into redis
     '''
     pre_tracks = userTrack.choose_all_tracks(username)
-    # pre_tracks = random.sample(pre_tracks, main.PRE_TRACKS_NUMBER)
+    pre_tracks = random.sample(pre_tracks, main.PRE_TRACKS_NUMBER)
     pre_tracks = userTrack.choose_tracks_info(pre_tracks)
     info.fetch_tracks_urls(pre_tracks)
     track_contr.filter_no_tracks(pre_tracks)
@@ -189,14 +189,18 @@ def init_pre(username):
 
 def init(username):
     get_own_library(username)
-    init_pre(username)
-
-    userM.add_rec_user(username)
+    # init_pre(username)
+    # userM.add_rec_user(username)
+    get_recommendation(username)
+    init_emotion(username)
+    store_tracks_info(username)
+    userTrack.store_user_tracks(username)
+    # userTrack.delete_pre_tracks(username)
 
 
 if __name__ == '__main__':
-    init_emotion('Patrickcai')
-    exit(0)
+    # init("Patrickcai")
+    # exit(0)
     # ps = fredis.subscribe(redname.WAITING_USER_SET)
     # for message in ps.listen():
     #     if message['type'] == 'message':

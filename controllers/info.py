@@ -6,6 +6,7 @@ from constants.main import SEARCH_URL, API_HEADERS, API_COOKIE
 from constants.main import get_dfsid_url
 from utils.zeus import is_similar
 from utils import zeus
+from utils import reconnect
 
 
 def encrypted_id(id):
@@ -37,8 +38,8 @@ def download_url(track, progress):
         'sub': 'false',
         'limit': 10
     }
-    r = requests.post(SEARCH_URL, headers=API_HEADERS,
-                      params=params, cookies=API_COOKIE)
+    r = reconnect.post(SEARCH_URL, headers=API_HEADERS,
+                       params=params, cookies=API_COOKIE)
     try:
         # @todo(Improve if two tracks is
         # Until We Bleed (feat. Lykke Li) (PatrickReza Dubstep Remix) )
@@ -56,7 +57,6 @@ def download_url(track, progress):
             if is_title_similar and is_artist_similar and is_album_legal:
                 song_id = song['id']
                 track.song_id = song_id
-                print('yes')
                 break
         else:
             for song in songs:
