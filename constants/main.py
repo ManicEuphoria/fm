@@ -9,6 +9,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 MIN_TRACK_PLAYCOUNT = 3
 
+INIT_RADIO_TYPE = 'normal'
+CACHE_LIST_NUMBER = 8
 LIB_RATIO = 60
 
 TOP_RATIO = 40
@@ -19,14 +21,15 @@ PRE_TRACKS_NUMBER = 20
 
 MAX_PAST_ARTISTS = 15
 MAX_PAST_TRACKS = 180
-MAX_PAST_EMOTION_ARTISTS = 2
-MAX_PAST_EMOTION_TRACKS = 20
+MAX_PAST_EMOTION_ARTISTS = 10
+MAX_PAST_EMOTION_TRACKS = 30
 MAX_PAST_TAGS = 4
 
 TITLE_BANNED = set(['REMIX', "LIVE"])
 
 ALBUM_BANNED = ["DAYTROTTER SESSION", 'DAYTROTTER SESSIONS',
-                "ITUNES SESSION", 'ITUNES SESSIONS', "LIVE"]
+                "ITUNES SESSION", 'ITUNES SESSIONS', "LIVE",
+                "DAYTROTTER STUDIO"]
 
 SAMPLE_TRACKS_NUMBER = 800
 
@@ -37,6 +40,8 @@ IS_LIB = {
     80: [1, 1, 1, 1, 0],
     100: [1, 1, 1, 1, 1],
 }
+
+LIB_ORDER = ['lib', 'lib', 'rec', 'lib', 'rec']
 
 EMOTION_RANGE = [[start_value * 25, start_value * 25 + 25]
                  for start_value in xrange(0, 15)]

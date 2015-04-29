@@ -14,3 +14,7 @@ PRE_TRACKS = "preTrack:"
 PERSONAL_LIB = "personalLib:"
 PERSONAL_LIB_UUID = "personalLibUUID:"
 PERSONAL_REC_UUID = "personalRecUUID:"
+
+PERSONAL_STATUS = ":status"
+PERSONAL_TRACK_CACHE = ":track_cache"
+PERSONAL_CACHE_STATUS = ":cache"

@@ -8,6 +8,7 @@ from constants.main import MP3_FILE_PREFIX, WY_ARTIST_PREFIX
 from constants.main import WY_ALBUM_PREFIX, WY_SONG_PREFIX
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import or_
 from utils import fredis, zeus
 from constants import redname
 from fbase import get_session
@@ -202,28 +203,69 @@ def get_user_uuids(username, track_type):
     return fredis.r_cli.lrange(user_uuids, 0, -1)
 
 
-def get_user_tracks_detail(track_uuids, emotion_range=None, last_tag=None,
-                           tag_value=None, track_number=0):
+# Deprecated
+# def get_user_tracks_detail(track_uuids, emotion_range=None, last_tag=None,
+#                            tag_value=None, track_number=0):
+#     '''
+#     Get user's tracks in detail like mp3 url from redis
+#     Get the sample of the lib
+#     '''
+#     track_uuids = random.sample(track_uuids, main.SAMPLE_TRACKS_NUMBER)
+#     db_session = get_session()
+#     emo_start, emo_end = emotion_range
+#     if not tag_value:
+#         # For the track number is 0, select one track randomly
+#         sample_tracks = db_session.query(TrackInfo)\
+#             .filter(TrackInfo.track_uuid.in_(track_uuids))\
+#             .filter(TrackInfo.emotion_value >= emo_start)\
+#             .filter(TrackInfo.emotion_value <= emo_end).all()
+#     else:
+#         # For the track number is > 0, emotion range is way larger
+#         sample_tracks = db_session.query(TrackInfo)\
+#             .filter(TrackInfo.track_uuid.in_(track_uuids))\
+#             .filter(TrackInfo.emotion_value > 0).all()
+#     sample_tracks = [_extra_info(sample_track)
+#                      for sample_track in sample_tracks]
+#     return sample_tracks
+
+
+def get_user_tracks_detail(emotion_range, last_tag, uuids):
     '''
-    Get user's tracks in detail like mp3 url from redis
-    Get the sample of the lib
+
     '''
-    track_uuids = random.sample(track_uuids, main.SAMPLE_TRACKS_NUMBER)
     db_session = get_session()
     emo_start, emo_end = emotion_range
-    if not tag_value:
-        # For the track number is 0, select one track randomly
+    if last_tag:
+        # @(todo) if no tracks return refetch again with larger emotion range
         sample_tracks = db_session.query(TrackInfo)\
-            .filter(TrackInfo.track_uuid.in_(track_uuids))\
+            .filter(TrackInfo.track_uuid.in_(uuids))\
+            .filter(TrackInfo.emotion_value >= emo_start)\
+            .filter(TrackInfo.emotion_value <= emo_end)\
+            .filter(or_(TrackInfo.tag1 == last_tag,
+                        TrackInfo.tag2 == last_tag,
+                        TrackInfo.tag3 == last_tag,
+                        TrackInfo.tag4 == last_tag))\
+            .all()
+    else:
+        sample_tracks = db_session.query(TrackInfo)\
+            .filter(TrackInfo.track_uuid.in_(uuids))\
             .filter(TrackInfo.emotion_value >= emo_start)\
             .filter(TrackInfo.emotion_value <= emo_end).all()
-    else:
-        # For the track number is > 0, emotion range is way larger
-        sample_tracks = db_session.query(TrackInfo)\
-            .filter(TrackInfo.track_uuid.in_(track_uuids))\
-            .filter(TrackInfo.emotion_value > 0).all()
-    sample_tracks = [_extra_info(sample_track)
-                     for sample_track in sample_tracks]
+    return sample_tracks
+
+
+def get_source_rec(last_title, username):
+    '''
+    According to the last track title to get the rec songs
+    '''
+    db_session = get_session()
+    # return None
+    sample_tracks = db_session.query(TrackInfo).\
+        join(RecTrack, RecTrack.track_uuid == TrackInfo.track_uuid)\
+        .filter(RecTrack.username == username)\
+        .filter(RecTrack.source_type == 1)\
+        .filter(RecTrack.source == last_title)\
+        .all()
     return sample_tracks
 
 
@@ -338,7 +380,7 @@ def choose_no_emotion_tracks():
     '''
     db_session = get_session()
     tracks_info = db_session.query(TrackInfo)\
-        .filter(TrackInfo.emotion_value >= 1000).all()
+        .filter(TrackInfo.emotion_value == -100).all()
     return tracks_info
 
 

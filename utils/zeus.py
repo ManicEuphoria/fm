@@ -97,3 +97,17 @@ def next_list_emotion(emotion_range):
         300: [[200, 300]],
     }
     return choice(emotion_jump_table[emo_start])
+
+
+class AttrGet(object):
+    '''
+    From the self.attr_list get the attr
+    And pass the value to the self.attr =
+    '''
+    def __init__(self):
+        pass
+
+    def _get_attr(self, item):
+        for attr in self.attr_list:
+            item_value = getattr(item, attr)
+            setattr(self, attr, item_value)

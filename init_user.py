@@ -12,6 +12,7 @@ from constants import redname
 from controllers import emotion_contr
 from controllers import trackList_contr, user_contr
 from models import userM
+from models import playTrack
 from constants.main import TOP_RATIO, RECENT_RATIO, LOVED_RATIO
 from utils import geventWorker, fredis
 from utils.geventWorker import Worker
@@ -187,19 +188,29 @@ def init_pre(username):
     # userTrack.store_pre_tracks(username, pre_tracks)
 
 
+def init_cache(username):
+    '''
+    Init the tracks into cache
+    '''
+    cache_tracks = playTrack.PlayTrack(username)
+    cache_tracks.init_cache()
+
+
 def init(username):
-    get_own_library(username)
+    # get_own_library(username)
     # init_pre(username)
     # userM.add_rec_user(username)
-    get_recommendation(username)
+    # get_recommendation(username)
     init_emotion(username)
     store_tracks_info(username)
-    userTrack.store_user_tracks(username)
+    # userTrack.store_user_tracks(username)
+    # init_cache(username)
     # userTrack.delete_pre_tracks(username)
 
 
 if __name__ == '__main__':
-    # init("Patrickcai")
+    # store_tracks_info("Patrickcai")
+    init("Patrickcai")
     # exit(0)
     # ps = fredis.subscribe(redname.WAITING_USER_SET)
     # for message in ps.listen():
@@ -208,4 +219,4 @@ if __name__ == '__main__':
     #         last_user = last_contr.get_user(username)
     #         init(username)
     last_user = last_contr.get_user("Patrickcai")
-    init("Patrickcai")
+    # init("Patrickcai")

@@ -53,10 +53,11 @@ def refresh_no_emotion_tracks():
 
 
 if __name__ == "__main__":
+    # refresh_no_emotion_tracks()
     init_artist_emotion()
     exit()
-    ps = fredis.subscribe(redname.WAITING_EMO_USER)
-    for message in ps.listen():
-        if message['type'] == "message":
-            username = message['data']
-            init_emotion(username)
+    # ps = fredis.subscribe(redname.WAITING_EMO_USER)
+    # for message in ps.listen():
+    #     if message['type'] == "message":
+    #         username = message['data']
+    #         init_emotion(username)

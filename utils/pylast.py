@@ -1273,7 +1273,16 @@ class SessionKeyGenerator(object):
         return _extract(doc, "key")
 
 TopItem = collections.namedtuple("TopItem", ["item", "weight"])
-SimilarItem = collections.namedtuple("SimilarItem", ["item", "match"])
+# SimilarItem = collections.namedtuple("SimilarItem", ["item", "match", "source"])
+
+
+class SimilarItem(object):
+    def __init__(self, item, match, source=None):
+        self.item = item
+        self.match = match
+        self.source = source
+
+
 LibraryItem = collections.namedtuple(
     "LibraryItem", ["item", "playcount", "tagcount"])
 PlayedTrack = collections.namedtuple(
